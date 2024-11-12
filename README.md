@@ -1,6 +1,6 @@
 # PizzaDeliveryApplication
 
-![Alt text](/diagrams/PizzaShop.drawio.png)
+![Alt text](/diagrams/UpdatedER.drawio.png)
 
 This README outlines the key requirements and data structures for the Pizza Delivery Application.
 
