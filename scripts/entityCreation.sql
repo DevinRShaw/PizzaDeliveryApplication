@@ -34,38 +34,35 @@ CREATE TABLE Store (
 );
 
 CREATE TABLE P_Order (
-    orderID char(60) UNIQUE NOT NULL,
+    orderID char(60) PRIMARY KEY,
     orderTimestamp timestamp NOT NULL,
     orderStatus char(50) NOT NULL,
     totalPrice float NOT NULL,
     userLogin CHAR(15) NOT NULL, -- User mandatory
     storeID CHAR(50) NOT NULL, -- Store mandatory
-    PRIMARY KEY(orderID),
     FOREIGN KEY (userLogin) REFERENCES P_User(login),
     FOREIGN KEY (storeID) REFERENCES Store(storeID)
 );
 
--- how to do the total participation 
--- constraint on Order?
 CREATE TABLE has (
-    orderID CHAR(60) UNIQUE NOT NULL,
-    storeID CHAR(50) UNIQUE NOT NULL,
+    orderID CHAR(60) NOT NULL,
+    storeID CHAR(50) NOT NULL,
     PRIMARY KEY(orderID, storeID),
     FOREIGN KEY (orderID) REFERENCES P_Order(orderID),
     FOREIGN KEY (storeID) REFERENCES Store(storeID)
 );
 
 CREATE TABLE views (
-    userLogin CHAR(15) UNIQUE NOT NULL,
-    itemName CHAR(50) UNIQUE NOT NULL,
+    userLogin CHAR(15),
+    itemName CHAR(50),
     PRIMARY KEY(userLogin, itemName),
     FOREIGN KEY (userLogin) REFERENCES P_User(login),
     FOREIGN KEY (itemName) REFERENCES Item(itemName)
 );
 
 CREATE TABLE availableAt (
-    itemName CHAR(50) UNIQUE NOT NULL,
-    storeID CHAR(50) UNIQUE NOT NULL,
+    itemName CHAR(50),
+    storeID CHAR(50),
     PRIMARY KEY(itemName, storeID),
     FOREIGN KEY (storeID) REFERENCES Store(storeID),
     FOREIGN KEY (itemName) REFERENCES Item(itemName)
