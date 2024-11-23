@@ -1,6 +1,7 @@
 # PizzaDeliveryApplication
 
-![Alt text](/diagrams/UpdatedER.drawio.png)
+![UpdatedER drawio (1)](https://github.com/user-attachments/assets/d9c1ab96-e724-474f-8c98-467972b7da2c)
+
 
 This README outlines the key requirements and data structures for the Pizza Delivery Application.
 
