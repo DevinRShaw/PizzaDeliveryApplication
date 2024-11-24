@@ -14,24 +14,6 @@ Provide a high-level description of your implementation (1 paragraph max).
 
 ---
 
-## Queries
-### Query 1
-- **Description**: [Brief explanation of the query's purpose.]
-- **Implementation**:
-  - [Code snippet or screenshot for Query 1]
-  - Explanation of how it was implemented and its purpose (no more than 3-4 sentences).
-
-### Query 2
-- **Description**: [Brief explanation of the query's purpose.]
-- **Implementation**:
-  - [Code snippet or screenshot for Query 2]
-  - Explanation of how it was implemented and its purpose (no more than 3-4 sentences).
-
-### Query 3
-- **Description**: [Brief explanation of the query's purpose.]
-- **Implementation**:
-  - [Code snippet or screenshot for Query 3]
-  - Explanation of how it was implemented and its purpose (no more than 3-4 sentences).
 
 ...
 
