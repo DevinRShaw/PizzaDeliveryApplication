@@ -15,7 +15,6 @@ Provide a high-level description of your implementation (1 paragraph max).
 ---
 
 
-...
 
 ---
 
