@@ -46,10 +46,10 @@ CREATE TABLE P_Order (
 
 CREATE TABLE has (
     orderID CHAR(60) NOT NULL,
-    storeID CHAR(50) NOT NULL,
+    itemName CHAR(50) NOT NULL,
     PRIMARY KEY(orderID, storeID),
     FOREIGN KEY (orderID) REFERENCES P_Order(orderID),
-    FOREIGN KEY (storeID) REFERENCES Store(storeID)
+    FOREIGN KEY (itemName) REFERENCES Item(itemName)
 );
 
 CREATE TABLE views (
