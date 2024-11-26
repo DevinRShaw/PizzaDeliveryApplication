@@ -1,4 +1,6 @@
 /* Replace the location to where you saved the data files*/
+/*/home/csmajs/dshaw013/PizzaDeliveryApplication/cs166_project_phase3/data*/
+
 COPY Users
 FROM 'REPLACE PATH HERE/users.csv'
 WITH DELIMITER ',' CSV HEADER;
