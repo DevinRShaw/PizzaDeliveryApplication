@@ -25,6 +25,11 @@ import java.util.List;
 import java.util.ArrayList;
 import java.lang.Math;
 
+//my imports 
+import java.util.Scanner;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 /**
  * This class defines a simple embedded SQL utility class that is designed to
  * work with PostgreSQL JDBC drivers.
@@ -353,26 +358,120 @@ public class PizzaStore {
    /*
     * Creates a new user
     **/
-   import java.util.Scanner;
+   
 
    public static void CreateUser(PizzaStore esql){
-      // returns only if a correct value is given.
+
+      String userName;
+      String password;
+      String phonenumber;
+
+
+
+      //username validation loop 
       do {
          //username input
+         Scanner myObj = new Scanner(System.in);
          System.out.print("Create Username: ");
-         try { // read the userinput via scanner class 
-            Scanner myObj = new Scanner(System.in);
-            String userName = myObj.nextLine();
-            break;
+         userName = myObj.nextLine();
 
-         }catch (Exception e) {
+         //length of username restrictions 
+         if(userName.length() < 5 ){
+            System.out.println("invalid username: must be at least 5 characters");
+            continue; //prompts for username again 
+         }
+         if(userName.length() > 50){
+            System.out.println("invalid username: must less than 51 characters");
+            continue; //prompts for username again 
+         }
 
-            System.out.println("Your input is invalid!");
+
+         //username existance, if exists print warning and continue, if not break 
+            //test this with mfarrears0, try to make an account with said username
+            //break; use to leave username creation loop
+
+         String existsQuery = "SELECT * FROM users U WHERE U.login = '" + userName + "'";
+
+         try {
+            // Use the executeQuery method from the PizzaStore instance (esql)
+            int existingCount = esql.executeQuery(existsQuery); // This will return the number of rows returned
+
+            if (existingCount > 0) { // if more than 0 there is a user with that name 
+                System.out.println("Invalid username: username is already taken.");
+                
+                continue; // prompts for username again
+            }
+            // If username doesn't exist, break out of the loop
+            System.out.println("Username available!");
+            break; // Exit the loop when username is valid
+        } catch (SQLException e) {
+            System.err.println("Error checking username: " + e.getMessage());
+            continue; // Continue the loop if there is an exception
+        }
+      }while (true);
+
+
+      //password validation loop 
+      do {
+         //password input
+         Scanner myObj = new Scanner(System.in);
+         System.out.print("Create Password: ");
+         password = myObj.nextLine();
+
+         //length of username restrictions 
+         if(password.length() < 1 ){
+            System.out.println("invalid password: must be at least 1 character");
+            continue; //prompts for password again 
+         }
+
+         if(password.length() > 30){
+            System.out.println("invalid password: must be less than 31 characters");
+            continue; //prompts for password again 
+         }
+
+         break;
+      }while (true);
+
+
+      //phonenumber validation loop 
+      do {
+         //phonenumber input
+         Scanner myObj = new Scanner(System.in);
+         System.out.print("Add phone number in XXX-XXX-XXXX format: ");
+         phonenumber = myObj.nextLine();
+
+         //length of username restrictions 
+         if(phonenumber.length() != 12 ){
+            System.out.println("invalid phone number: must be in XXX-XXX-XXXX format");
+            continue; //prompts for password again 
+         }
+
+         String regex = "\\d{3}-\\d{3}-\\d{4}";
+         Pattern pattern = Pattern.compile(regex);
+         Matcher matcher = pattern.matcher(phonenumber);
+
+         if(!matcher.matches()){
+            System.out.println("invalid phone number: must be in XXX-XXX-XXXX format");
             continue;
+         }
 
-         }//end try
+         break;
 
       }while (true);
+      //at this point we have the username, password and phone number handled, userName password phonenumber
+
+      String userInsertQuery = "INSERT INTO users (login, password, role, phoneNum) VALUES ('" + userName + "','" + password + "', 'customer', '" + phonenumber + "')";
+
+      try {
+            // Use the executeQuery method from the PizzaStore instance (esql)
+            esql.executeUpdate(userInsertQuery); // This will return the number of rows returned
+            System.out.println("User: " + userName + " created");
+
+         
+        } catch (SQLException e) {
+            System.err.println("Error creating new user: " + e.getMessage());
+        }
+
    }//end CreateUser
 
 
