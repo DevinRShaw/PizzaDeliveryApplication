@@ -353,7 +353,26 @@ public class PizzaStore {
    /*
     * Creates a new user
     **/
+   import java.util.Scanner;
+
    public static void CreateUser(PizzaStore esql){
+      // returns only if a correct value is given.
+      do {
+         //username input
+         System.out.print("Create Username: ");
+         try { // read the userinput via scanner class 
+            Scanner myObj = new Scanner(System.in);
+            String userName = myObj.nextLine();
+            break;
+
+         }catch (Exception e) {
+
+            System.out.println("Your input is invalid!");
+            continue;
+
+         }//end try
+
+      }while (true);
    }//end CreateUser
 
 
