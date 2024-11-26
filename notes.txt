@@ -1,3 +1,5 @@
+11/25/2024:
+
 there are already methods to execute sql via string input
 there is also an outline of the main menu 
 there is also an outline of the function declarations given 
@@ -10,5 +12,8 @@ idea for registration:
 plan: 
 * executeUpdate is the function to use for input to user table 
 
+how to assess boolean of user existing? 
+    * executequery and use the row count > 0 to assess existing username
 
-how to test this? have to configure first I am guessing 
+Test existing check via INSERT dummydata, then input dummy username, shouldnt allow 
+Test update via creating new user and then trying to register with credentials + SQL query check 
