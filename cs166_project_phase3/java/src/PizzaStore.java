@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.lang.Math;
 
+import java.util.Scanner;
+
 /**
  * This class defines a simple embedded SQL utility class that is designed to
  * work with PostgreSQL JDBC drivers.
@@ -362,7 +364,40 @@ public class PizzaStore {
     * @return User login or null is the user does not exist
     **/
    public static String LogIn(PizzaStore esql){
-      return null;
+      
+      String username;
+      String password;
+
+      // username input
+      Scanner myObj = new Scanner(System.in);
+      System.out.print("Enter Username: ");
+      username = myObj.nextLine();
+
+      // password input
+      System.out.print("Enter password: ");
+      password = myObj.nextLine();
+
+      // username validation
+      String userExistsQuery = "SELECT * FROM users U WHERE U.login = '" + username + "'AND U.password = '" + password + "'";
+
+      try {
+         // use the executeQuery method from the PizzaStore instance (esql)
+         int existingUserCount = esql.executeQuery(userExistsQuery); // This will return the number of rows returned
+       
+         // if username doesn't exist, return null
+         if (existingUserCount <= 0) {
+            System.out.println("Invalid credentials");
+            return null;
+         } else {
+            return "exists";
+         }
+      } catch (SQLException e) {
+         System.out.println("Error checking credentials: " + e.getMessage());
+         return null;
+      }
+
+      
+
    }//end
 
 // Rest of the functions definition go in here
