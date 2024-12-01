@@ -368,8 +368,16 @@ public class PizzaStore {
 // Rest of the functions definition go in here
 
    public static void viewProfile(PizzaStore esql) {}
+
+
+   
    public static void updateProfile(PizzaStore esql) {}
+
+
+
    public static void viewMenu(PizzaStore esql) {}
+
+
    public static void placeOrder(PizzaStore esql) {}
    public static void viewAllOrders(PizzaStore esql) {}
    public static void viewRecentOrders(PizzaStore esql) {}
