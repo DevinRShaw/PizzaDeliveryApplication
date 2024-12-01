@@ -10,7 +10,7 @@
  *
  */
 
-
+import java.util.Arrays;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.Statement;
@@ -480,14 +480,246 @@ public class PizzaStore {
     * @return User login or null is the user does not exist
     **/
    public static String LogIn(PizzaStore esql){
-      return null;
+       String username;
+      String password;
+
+      // username input
+      Scanner myObj = new Scanner(System.in);
+      System.out.print("Enter Username: ");
+      username = myObj.nextLine();
+
+      // password input
+      System.out.print("Enter password: ");
+      password = myObj.nextLine();
+
+      // username validation
+      String userExistsQuery = "SELECT * FROM users U WHERE U.login = '" + username + "'AND U.password = '" + password + "'";
+
+      try {
+         // use the executeQuery method from the PizzaStore instance (esql)
+         int existingUserCount = esql.executeQuery(userExistsQuery); // This will return the number of rows returned
+       
+         // if username doesn't exist, return null
+         if (existingUserCount <= 0) {
+            System.out.println("Invalid credentials");
+            return null;
+         } else {
+            return "exists";
+         }
+      } catch (SQLException e) {
+         System.out.println("Error checking credentials: " + e.getMessage());
+         return null;
+      }
    }//end
+
+
+
+/*default query 
+      String defaultQuery = "SELECT * FROM Items";
+         
+      try {
+         List<List<String>> results = esql.executeQueryAndReturnResult(listQuery);
+
+         for (int i = 0; i < results.size(); i++) {
+            List<String> record = results.get(i);
+            System.out.println(record);
+         }
+
+      } catch (SQLException e) {
+            // Handle SQL exception (e.g., problem with the query or connection)
+            System.err.println("SQL error: " + e.getMessage());
+      }
+*/
+
+   public static void viewMenu(PizzaStore esql) {
+   
+      //custom search validation loop
+      //switch case menu and then verify option is exceptable 
+      boolean viewmenu = true;
+      while(viewmenu) {
+         System.out.println("VIEW MENU");
+         System.out.println("---------");
+         System.out.println("1. Full Menu");
+         System.out.println("2. Filter Menu");
+         System.out.println("3. Main Menu");
+         switch (readChoice()){
+
+            case 1: //show the entire menu to the user 
+
+               String defaultQuery = "SELECT * FROM Items";
+            
+               try {
+                  List<List<String>> results = esql.executeQueryAndReturnResult(defaultQuery);
+
+                  for (int i = 0; i < results.size(); i++) {
+                     List<String> record = results.get(i);
+                     System.out.println(record);
+                  }
+
+               } catch (SQLException e) {
+                  // Handle SQL exception (e.g., problem with the query or connection)
+                  System.err.println("SQL error: " + e.getMessage());
+               }
+               break;
+
+
+            case 2: 
+               //print out availible types for user to filter by 
+
+               List<String> typesResult = new ArrayList<>(); //list of types
+
+               String typeListQuery = "SELECT DISTINCT typeOfItem FROM Items";
+         
+               try {
+                  List<List<String>> results = esql.executeQueryAndReturnResult(typeListQuery);
+                   
+
+                  for (int i = 0; i < results.size(); i++) {
+                     String record = results.get(i).get(0);
+                     System.out.println(record);
+
+                     //create a list of types 
+                     typesResult.add(record.trim());
+                  }
+
+               } catch (SQLException e) {
+                  // Handle SQL exception (e.g., problem with the query or connection)
+                  System.err.println("SQL error: " + e.getMessage());
+               }
+
+               //type input 
+               String types = "";
+               //types input
+               Scanner myObj = new Scanner(System.in);
+
+               do {
+                  
+                  System.out.print("Filter by types? (leave empty to view all, space for multiple): ");
+                  types = myObj.nextLine();
+
+                  // Check if the input is empty (indicating view all types)
+                  if (types.trim().isEmpty()) {
+                     System.out.println("Viewing all types.");
+                     break;  // Break the loop if the input is empty (viewing all)
+                  }
+
+                  // Split the input string by spaces
+                  String[] typesArray = types.split("\\s+");  // "\\s+" handles multiple spaces
+                  List<String> typesList = Arrays.asList(typesArray);
+
+
+                  // Flag to track if the input is valid
+                  boolean validInput = true;
+
+                  // Check if each type in the input is present in the typesResult list
+                  for (String type : typesList) {
+                     if (!typesResult.contains(type)) {
+                        System.err.println("Error: Type '" + type + "' is not valid.");
+                        validInput = false;
+                     }
+                  }
+
+                  // If input is valid, break the loop; otherwise, prompt for input again
+                  if (validInput) {
+                     break; // Exit the loop if the input is valid
+                  }
+
+               }while (true);
+
+
+               // Price input
+               String priceInput = "";
+
+               do {
+                     System.out.print("Filter under a price? (leave empty to view all prices): ");
+                     priceInput = myObj.nextLine();
+
+                     // Check if the input is empty (indicating view all prices)
+                     if (priceInput.trim().isEmpty()) {
+                        System.out.println("Viewing all prices.");
+                        break;  // Break the loop if the input is empty (viewing all)
+                     }
+
+                     // Try to parse the price input into a valid number (Double)
+                     double filterPrice = -1;
+                     try {
+                        filterPrice = Double.parseDouble(priceInput);
+                     } catch (NumberFormatException e) {
+                        System.err.println("Error: Invalid price format. Please enter a valid number.");
+                        continue;  // Prompt again if the input is not a valid number
+                     }
+
+                     // Flag to track if the input is valid
+                     boolean validInput = true;
+
+                     // Check if the filter price is valid (should be positive)
+                     if (filterPrice <= 0) {
+                        System.err.println("Error: Price must be greater than 0.");
+                        validInput = false;
+                     }
+
+                     // If the input is valid, break the loop; otherwise, prompt for input again
+                     if (validInput) {
+                        break; // Exit the loop if the input is valid
+                     }
+
+               } while (true);  // Repeat until valid input is provided
+
+               // Order input
+               String orderInput = "";
+
+               do {
+                     System.out.print("Choose order (a for ascending, d for descending, or leave empty for no order): ");
+                     orderInput = myObj.nextLine().trim().toLowerCase();  // Normalize to lower case
+
+                     // Validate the order input
+                     if (orderInput.isEmpty()) {
+                        System.out.println("No order selected. Results will be in the default order.");
+                        break;
+                     } else if (orderInput.equals("a") || orderInput.equals("d")) {
+                        System.out.println("Selected order: " + (orderInput.equals("a") ? "ascending" : "descending"));
+                        break;
+                     } else {
+                        System.err.println("Error: Invalid order. Please enter 'a', 'd', or leave empty for no order.");
+                     }
+
+               } while (true);  // Repeat until valid order is provided
+
+
+               //once you have query parameters execute and show said query (simplier than input validation)
+
+
+
+               
+            case 3: viewmenu = false; break;
+
+            default : System.out.println("Unrecognized choice!"); break;
+         }
+      }
+
+
+         
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Rest of the functions definition go in here
 
    public static void viewProfile(PizzaStore esql) {}
    public static void updateProfile(PizzaStore esql) {}
-   public static void viewMenu(PizzaStore esql) {}
+   
    public static void placeOrder(PizzaStore esql) {}
    public static void viewAllOrders(PizzaStore esql) {}
    public static void viewRecentOrders(PizzaStore esql) {}
