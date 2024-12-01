@@ -375,7 +375,16 @@ public class PizzaStore {
 
 
 
-   public static void viewMenu(PizzaStore esql) {}
+   public static void viewMenu(PizzaStore esql) {
+      // print the menu first off 
+      // switch case menu for type/ under price, sort on price high or low 
+
+      
+
+
+
+
+   }
 
 
    public static void placeOrder(PizzaStore esql) {}
