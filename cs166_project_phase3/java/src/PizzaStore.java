@@ -629,6 +629,8 @@ public class PizzaStore {
 
                // Price input
                String priceInput = "";
+               
+               double filterPrice = -1;
 
                do {
                      System.out.print("Filter under a price? (leave empty to view all prices): ");
@@ -641,7 +643,6 @@ public class PizzaStore {
                      }
 
                      // Try to parse the price input into a valid number (Double)
-                     double filterPrice = -1;
                      try {
                         filterPrice = Double.parseDouble(priceInput);
                      } catch (NumberFormatException e) {
@@ -688,7 +689,60 @@ public class PizzaStore {
 
                //once you have query parameters execute and show said query (simplier than input validation)
 
+               StringBuilder queryBuilder = new StringBuilder("SELECT * FROM Items WHERE 1=1");
 
+               // Filter by types (if user entered valid types)
+               if (!types.trim().isEmpty()) {
+                  String[] typesArray = types.split("\\s+");  // Split the input types by space
+                  for (int i = 0; i < typesArray.length; i++) {
+                     if (i == 0) {
+                           // For the first type, use "AND" to start the filter condition
+                           queryBuilder.append(" AND (");
+                     }
+                     queryBuilder.append("typeOfItem LIKE '%").append(typesArray[i].trim()).append("'");
+                     
+                     if (i < typesArray.length - 1) {
+                           // Add "OR" between types
+                           queryBuilder.append(" OR ");
+                     }
+                  }
+                  // Close the parentheses for the OR conditions
+                  queryBuilder.append(")");
+               }
+
+
+               // Filter by price (if user entered a valid price)
+               if (filterPrice > 0) {
+                  queryBuilder.append(" AND price <= ").append(filterPrice);
+               }
+
+               // Add order clause (if the user specified an order)
+               if (!orderInput.isEmpty()) {
+                  // Assuming orderClause contains 'ASC' or 'DESC'
+                  if (orderInput.equals("a")) {
+                     queryBuilder.append(" ORDER BY price ASC");
+                  } else if (orderInput.equals("d")) {
+                     queryBuilder.append(" ORDER BY price DESC");
+                  }
+               }
+
+               // Final custom query string
+               String customQuery = queryBuilder.toString();
+               //System.out.println(customQuery);
+            
+               try {
+                  List<List<String>> results = esql.executeQueryAndReturnResult(customQuery);
+
+                  for (int i = 0; i < results.size(); i++) {
+                     List<String> record = results.get(i);
+                     System.out.println(record);
+                  }
+
+               } catch (SQLException e) {
+                  // Handle SQL exception (e.g., problem with the query or connection)
+                  System.err.println("SQL error: " + e.getMessage());
+               }
+               break;
 
                
             case 3: viewmenu = false; break;
