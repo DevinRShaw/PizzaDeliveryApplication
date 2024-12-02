@@ -297,7 +297,7 @@ public class PizzaStore {
                    case 3: viewMenu(esql); break;
                    case 4: placeOrder(esql); break;
                    case 5: viewAllOrders(esql, authorisedUser); break;
-                   case 6: viewRecentOrders(esql); break;
+                   case 6: viewRecentOrders(esql, authorisedUser); break;
                    case 7: viewOrderInfo(esql); break;
                    case 8: viewStores(esql); break;
                    case 9: updateOrderStatus(esql); break;
@@ -805,7 +805,26 @@ public class PizzaStore {
 
 
    }
-   public static void viewRecentOrders(PizzaStore esql) {}
+   public static void viewRecentOrders(PizzaStore esql, String authorisedUser) {
+      //same as teh view all orders just add sorting on timestamp and add a limit with no offset 
+      String defaultQuery = "SELECT * FROM FoodOrder WHERE login = '" + authorisedUser + 
+         "' ORDER BY orderTimestamp DESC LIMIT " + 5 + ";";
+
+         try {
+            List<List<String>> results = esql.executeQueryAndReturnResult(defaultQuery);
+
+            for (int i = 0; i < results.size(); i++) {
+               List<String> record = results.get(i);
+               System.out.println(record);
+            }
+
+         } catch (SQLException e) {
+            // Handle SQL exception (e.g., problem with the query or connection)
+            System.err.println("SQL error: " + e.getMessage());
+         }
+
+
+   }
    public static void viewOrderInfo(PizzaStore esql) {}
 
    public static void viewStores(PizzaStore esql) {
