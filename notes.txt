@@ -1,0 +1,19 @@
+11/25/2024:
+
+there are already methods to execute sql via string input
+there is also an outline of the main menu 
+there is also an outline of the function declarations given 
+
+idea for registration:
+* check if username exists 
+    - if not then update the users table with their relevant information
+    - if exists, then output a warning and send back to main menu or registration prompt 
+
+plan: 
+* executeUpdate is the function to use for input to user table 
+
+how to assess boolean of user existing? 
+    * executequery and use the row count > 0 to assess existing username
+
+Test existing check via INSERT dummydata, then input dummy username, shouldnt allow 
+Test update via creating new user and then trying to register with credentials + SQL query check 
