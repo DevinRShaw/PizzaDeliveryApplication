@@ -778,7 +778,32 @@ public class PizzaStore {
    public static void viewAllOrders(PizzaStore esql) {}
    public static void viewRecentOrders(PizzaStore esql) {}
    public static void viewOrderInfo(PizzaStore esql) {}
-   public static void viewStores(PizzaStore esql) {}
+
+   public static void viewStores(PizzaStore esql) {
+      //same logic as the default view menu logic 
+
+      String defaultQuery = "SELECT * FROM Store";
+            
+         try {
+            List<List<String>> results = esql.executeQueryAndReturnResult(defaultQuery);
+
+            for (int i = 0; i < results.size(); i++) {
+               List<String> record = results.get(i);
+               System.out.println(record);
+            }
+
+         } catch (SQLException e) {
+            // Handle SQL exception (e.g., problem with the query or connection)
+            System.err.println("SQL error: " + e.getMessage());
+         }
+
+   }
+
+
+
+
+
+
    public static void updateOrderStatus(PizzaStore esql) {}
    public static void updateMenu(PizzaStore esql) {}
    public static void updateUser(PizzaStore esql) {}
