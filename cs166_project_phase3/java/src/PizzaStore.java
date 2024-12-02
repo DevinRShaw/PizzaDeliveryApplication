@@ -298,7 +298,7 @@ public class PizzaStore {
                    case 4: placeOrder(esql); break;
                    case 5: viewAllOrders(esql, authorisedUser); break;
                    case 6: viewRecentOrders(esql, authorisedUser); break;
-                   case 7: viewOrderInfo(esql); break;
+                   case 7: viewOrderInfo(esql, authorisedUser); break;
                    case 8: viewStores(esql); break;
                    case 9: updateOrderStatus(esql); break;
                    case 10: updateMenu(esql); break;
@@ -798,12 +798,6 @@ public class PizzaStore {
             System.err.println("SQL error: " + e.getMessage());
          }
 
-
-
-
-
-
-
    }
    public static void viewRecentOrders(PizzaStore esql, String authorisedUser) {
       //same as teh view all orders just add sorting on timestamp and add a limit with no offset 
@@ -825,7 +819,45 @@ public class PizzaStore {
 
 
    }
-   public static void viewOrderInfo(PizzaStore esql) {}
+   public static void viewOrderInfo(PizzaStore esql, String authorisedUser) {
+
+      //add an input loop for orderID
+      String orderID; 
+      do {
+         //password input
+         Scanner myObj = new Scanner(System.in);
+         System.out.print("Enter orderID to search: ");
+         orderID = myObj.nextLine();
+
+         //length of username restrictions 
+         if(orderID.length() < 1 ){
+            System.out.println("invalid orderID: must be at least 1 character");
+            continue; //prompts for orderID again 
+         }
+
+         break;
+      }while (true);
+
+
+      String defaultQuery = "SELECT * FROM FoodOrder WHERE login = '" + authorisedUser + "' and orderID = " + orderID;
+
+      try {
+            List<List<String>> results = esql.executeQueryAndReturnResult(defaultQuery);
+
+            if (results.size() < 1){
+               System.out.println("No orders match order ID");
+            }
+
+            for (int i = 0; i < results.size(); i++) {
+               List<String> record = results.get(i);
+               System.out.println(record);
+            }
+
+         } catch (SQLException e) {
+            // Handle SQL exception (e.g., problem with the query or connection)
+            System.err.println("SQL error: " + e.getMessage());
+         }
+   }
 
    public static void viewStores(PizzaStore esql) {
       //same logic as the default view menu logic 
