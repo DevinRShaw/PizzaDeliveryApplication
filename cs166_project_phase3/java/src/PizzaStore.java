@@ -296,7 +296,7 @@ public class PizzaStore {
                    case 2: updateProfile(esql); break;
                    case 3: viewMenu(esql); break;
                    case 4: placeOrder(esql); break;
-                   case 5: viewAllOrders(esql); break;
+                   case 5: viewAllOrders(esql, authorisedUser); break;
                    case 6: viewRecentOrders(esql); break;
                    case 7: viewOrderInfo(esql); break;
                    case 8: viewStores(esql); break;
@@ -480,7 +480,7 @@ public class PizzaStore {
     * @return User login or null is the user does not exist
     **/
    public static String LogIn(PizzaStore esql){
-       String username;
+      String username;
       String password;
 
       // username input
@@ -504,7 +504,7 @@ public class PizzaStore {
             System.out.println("Invalid credentials");
             return null;
          } else {
-            return "exists";
+            return username;
          }
       } catch (SQLException e) {
          System.out.println("Error checking credentials: " + e.getMessage());
@@ -775,7 +775,36 @@ public class PizzaStore {
    public static void updateProfile(PizzaStore esql) {}
    
    public static void placeOrder(PizzaStore esql) {}
-   public static void viewAllOrders(PizzaStore esql) {}
+
+
+   public static void viewAllOrders(PizzaStore esql, String authorisedUser) {
+
+      // similar to view menu/stores, but on condition that login = current user
+      // how to check current user condition, changed login to return the username for queries 
+      //authorisedUser is the variable we are using 
+
+      String defaultQuery = "SELECT * FROM FoodOrder WHERE login = '" + authorisedUser + "'";
+            
+         try {
+            List<List<String>> results = esql.executeQueryAndReturnResult(defaultQuery);
+
+            for (int i = 0; i < results.size(); i++) {
+               List<String> record = results.get(i);
+               System.out.println(record);
+            }
+
+         } catch (SQLException e) {
+            // Handle SQL exception (e.g., problem with the query or connection)
+            System.err.println("SQL error: " + e.getMessage());
+         }
+
+
+
+
+
+
+
+   }
    public static void viewRecentOrders(PizzaStore esql) {}
    public static void viewOrderInfo(PizzaStore esql) {}
 
