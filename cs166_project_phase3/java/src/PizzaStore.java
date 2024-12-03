@@ -292,7 +292,7 @@ public class PizzaStore {
                 System.out.println(".........................");
                 System.out.println("20. Log out");
                 switch (readChoice()){
-                   case 1: viewProfile(esql); break;
+                   case 1: viewProfile(esql, authorisedUser); break;
                    case 2: updateProfile(esql); break;
                    case 3: viewMenu(esql); break;
                    case 4: placeOrder(esql); break;
@@ -505,10 +505,10 @@ public class PizzaStore {
             System.out.println("Invalid credentials");
             return null;
          } else {
-            return "exists";
+            return username;
          }
       } catch (SQLException e) {
-         System.out.println("Error checking credentials: " + e.getMessage());
+         System.err.println("Error checking credentials: " + e.getMessage());
          return null;
       }
 
@@ -518,7 +518,20 @@ public class PizzaStore {
 
 // Rest of the functions definition go in here
 
-   public static void viewProfile(PizzaStore esql) {}
+   public static void viewProfile(PizzaStore esql, String authorisedUser) {
+      
+      // query to find info for authorised user
+      String query = "SELECT U.favoriteItems, U.phoneNum FROM Users U WHERE U.login='" + authorisedUser + "'";
+
+      try {
+         // execute query and print results
+         int rowCount = esql.executeQueryAndPrintResult(query);
+         return;
+
+      } catch (SQLException e) {
+         System.err.println(e.getMessage());
+      }
+   }
 
 
    
