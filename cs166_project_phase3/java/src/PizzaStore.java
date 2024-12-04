@@ -570,9 +570,22 @@ public class PizzaStore {
       switch (readChoice()) {
          // add an item
          case 1:
-            // prompt user for the name of the item they would like to add
-            System.out.print("What is the name of the item you would like to add? ");
-            itemName = myObj.nextLine();
+            do {
+               // prompt user for the name of the item they would like to add
+               System.out.print("What is the name of the item you would like to add? ");
+               itemName = myObj.nextLine();
+
+               //length of item name restrictions 
+               if(newItemName.length() < 1 ){
+                  System.out.println("invalid item name: must be at least 1 character");
+                  continue; //prompts for item name again 
+               }
+               if(newItemName.length() > 50){
+                  System.out.println("invalid item name: must less than 51 characters");
+                  continue; //prompts for item name again 
+               }
+               break;
+            } while (true);
 
             //check if the item already exists
             query = "SELECT * FROM Items WHERE itemName='" + itemName + "'";
@@ -587,8 +600,20 @@ public class PizzaStore {
             }
 
             // prompt for ingredients
-            System.out.println("Please enter the list of ingredients for this item (separated by a comma):");
-            ingredients = myObj.nextLine();
+            do {
+               System.out.println("Please enter the list of ingredients for this item (separated by a comma):");
+               ingredients = myObj.nextLine();
+               //length of ingredients restrictions 
+               if (ingredients.length() < 1) {
+                  System.out.println("invalid ingredients: must be at least 1 character");
+                  continue; //prompts for ingredients again 
+               }
+               if(ingredients.length() > 300){
+                  System.out.println("invalid ingredients: must less than 301 characters");
+                  continue; //prompts for ingredients again 
+               }
+               break;
+            } while (true);
 
             // prompt for type of item
             System.out.println("Please enter the type of item.");
@@ -605,8 +630,17 @@ public class PizzaStore {
             }
             
             // prompt for price
-            System.out.print("Please enter the price of this item: ");
-            price = myObj.nextFloat();
+            do {
+               System.out.println("Please enter the price of this item: ");
+               // check if the input is a valid float
+               if (myObj.hasNextFloat()) {
+                  price = myObj.nextFloat();
+                  break;
+               } else {
+                  System.out.println("Invalid price value.");
+                  myObj.nextLine(); // consume invalid input
+               }
+            } while (true);
 
             // prompt for description
             System.out.println("Would you like to enter a description?");
@@ -786,14 +820,6 @@ public class PizzaStore {
          case 9: break;
          default: System.out.println("Unrecognized choice!"); break;
       }
-
-      // test
-                  query = "SELECT * FROM Items";
-                  try {
-                     esql.executeQueryAndPrintResult(query);
-                  } catch (SQLException e) {
-                     System.out.println(e.getMessage());
-                  }
    }
 
    public static void updateUser(PizzaStore esql) {}
