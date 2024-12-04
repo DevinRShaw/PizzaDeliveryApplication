@@ -563,152 +563,154 @@ public class PizzaStore {
          System.err.println(e.getMessage());
       }
       
-      // get user to update
-      String userToUpdate;
-      System.out.print("Enter the login of the user you would like to update: ");
-      userToUpdate = myObj.nextLine();
-
-      // check if user exists
-      query = "SELECT * FROM Users WHERE login='" + userToUpdate + "'";
-      try {
-         rowCount = esql.executeQuery(query);
-         // if doesn't exist, return
-         if (rowCount == 0) {
-            System.out.println("User does not exist.");
-            return authorisedUser;
-         }
-      } catch (SQLException e) {
-         System.err.println(e.getMessage());
-      }
-
-      // prompt which part of the user to update
-      System.out.println("Which area of the user would you like to update?");
-      System.out.println("-----------------------------------");
-      System.out.println("1. Username");
-      System.out.println("2. Password");
-      System.out.println("3. Role");
-      System.out.println("4. Favorite Items");
-      System.out.println("5. Phone Number");
-      System.out.println("-----------------------------------");
+      System.out.println("Would you like to UPDATE or DELETE a user? ");
+      System.out.println("----------------------------------");
+      System.out.println("1. Update");
+      System.out.println("2. Delete");
+      System.out.println("----------------------------------");
       System.out.println("9. Go back");
       switch (readChoice()) {
          case 1:
-            String newUsername;
-            do {
-               System.out.print("Enter new username: ");
-               newUsername = myObj.nextLine();
+            // get user to update
+            String userToUpdate;
+            System.out.print("Enter the username of the user you would like to update: ");
+            userToUpdate = myObj.nextLine();
 
-               //length of username restrictions 
-               if (newUsername.length() < 5 ) {
-                  System.out.println("invalid username: must be at least 5 characters");
-                  continue; //prompts for username again 
+            // check if user exists
+            query = "SELECT * FROM Users WHERE login='" + userToUpdate + "'";
+            try {
+               rowCount = esql.executeQuery(query);
+               // if doesn't exist, return
+               if (rowCount == 0) {
+                  System.out.println("User does not exist.");
+                  return authorisedUser;
                }
-               if (newUsername.length() > 50) {
-                  System.out.println("invalid username: must less than 51 characters");
-                  continue; //prompts for username again 
-               }
-               authorisedUser = newUsername;
-               break;
-            } while (true);
-            query = "UPDATE Users SET login = '" + newUsername + "' WHERE login = '" + userToUpdate + "'";
-            break;
-         case 2:
-            String newPassword;
-            do {
-               System.out.print("Enter new password: ");
-               newPassword = myObj.nextLine();
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
 
-               //length of username restrictions 
-               if (newPassword.length() < 1 ) {
-                  System.out.println("invalid password: must be at least 1 character");
-                  continue; //prompts for password again 
-               }
-               if (newPassword.length() > 30) {
-                  System.out.println("invalid password: must be less than 31 characters");
-                  continue; //prompts for password again 
-               }
-               break;
-            } while (true);
-            query = "UPDATE Users SET password = '" + newPassword + "' WHERE login = '" + userToUpdate + "'";
-            break;
-         case 3:
-            String newRole;
-            System.out.println("Enter new role: ");
-            System.out.println("---------------");
-            System.out.println("1. Manager");
-            System.out.println("2. Driver");
-            System.out.println("3. Customer");
-            System.out.println("---------------");
+            // prompt which part of the user to update
+            System.out.println("Which area of the user would you like to update?");
+            System.out.println("-----------------------------------");
+            System.out.println("1. Role");
+            System.out.println("2. Favorite Items");
+            System.out.println("3. Phone Number");
+            System.out.println("-----------------------------------");
+            System.out.println("9. Go back");
             switch (readChoice()) {
-               case 1: newRole = "manager"; break;
-               case 2: newRole = "driver"; break;
-               case 3: newRole = "customer"; break;
+               case 1:
+                  String newRole;
+                  System.out.println("Enter new role: ");
+                  System.out.println("---------------");
+                  System.out.println("1. Manager");
+                  System.out.println("2. Driver");
+                  System.out.println("3. Customer");
+                  System.out.println("---------------");
+                  switch (readChoice()) {
+                     case 1: newRole = "manager"; break;
+                     case 2: newRole = "driver"; break;
+                     case 3: newRole = "customer"; break;
 
+                     default: System.out.println("Unrecognized choice!"); return authorisedUser;
+                  }
+                  query = "UPDATE Users SET role = '" + newRole + "' WHERE login = '" + userToUpdate + "'";
+                  break;
+               case 2:
+                  String newFavoriteItems;
+                  do {
+                     // MAYBE SHOW MENU ITEMS HERE
+                     System.out.print("Enter new favorite item: ");
+                     newFavoriteItems = myObj.nextLine();
+
+                     // check if item exists
+                     query = "SELECT * FROM Items WHERE itemName = '" + newFavoriteItems + "'";
+                     try {
+                        rowCount = esql.executeQuery(query);
+                        if (rowCount == 0) {
+                           System.out.println("Item doesn't exist.");
+                           continue; // item doesn't exist
+                        }
+                        else break; // item exists
+                     } catch (SQLException e) {
+                        System.err.println(e.getMessage());
+                     }
+                  } while (true);
+
+                  query = "UPDATE Users SET favoriteItems = '" + newFavoriteItems + "' WHERE login = '" + userToUpdate + "'";
+                  break;
+               case 3:
+                  String newPhoneNumber;
+                  do {
+                     System.out.print("Enter new phone number in XXX-XXX-XXXX format: ");
+                     newPhoneNumber = myObj.nextLine();
+
+                     //length of phone number restrictions 
+                     if (newPhoneNumber.length() != 12 ) {
+                        System.out.println("invalid phone number: must be in XXX-XXX-XXXX format");
+                        continue; //prompts for password again 
+                     }
+
+                     String regex = "\\d{3}-\\d{3}-\\d{4}";
+                     Pattern pattern = Pattern.compile(regex);
+                     Matcher matcher = pattern.matcher(newPhoneNumber);
+
+                     if (!matcher.matches()) {
+                        System.out.println("invalid phone number: must be in XXX-XXX-XXXX format");
+                        continue;
+                     }
+                     break;
+                  } while (true);
+
+                  query = "UPDATE Users SET phoneNum = '" + newPhoneNumber + "' WHERE login = '" + userToUpdate + "'";
+                  break;
+
+               case 9: return authorisedUser;
                default: System.out.println("Unrecognized choice!"); return authorisedUser;
             }
-            query = "UPDATE Users SET role = '" + newRole + "' WHERE login = '" + userToUpdate + "'";
+            // execute query to update user
+            try {
+               esql.executeUpdate(query);
+               System.out.println("User updated.");
+               return authorisedUser;
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
             break;
-         case 4:
-            String newFavoriteItems;
-            do {
-               // MAYBE SHOW MENU ITEMS HERE
-               System.out.print("Enter new favorite item: ");
-               newFavoriteItems = myObj.nextLine();
+         case 2:
+            // get user to delete
+            String userToDelete;
+            System.out.print("Enter the username of the user you would like to delete: ");
+            userToDelete = myObj.nextLine();
 
-               // check if item exists
-               query = "SELECT * FROM Items WHERE itemName = '" + newFavoriteItems + "'";
-               try {
-                  rowCount = esql.executeQuery(query);
-                  if (rowCount == 0) {
-                     System.out.println("Item doesn't exist.");
-                     continue; // item doesn't exist
-                  }
-                  else break; // item exists
-               } catch (SQLException e) {
-                  System.err.println(e.getMessage());
+            // check if user exists
+            query = "SELECT * FROM Users WHERE login='" + userToDelete + "'";
+            try {
+               rowCount = esql.executeQuery(query);
+               // if doesn't exist, return
+               if (rowCount == 0) {
+                  System.out.println("User does not exist.");
+                  return authorisedUser;
                }
-            } while (true);
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
 
-            query = "UPDATE Users SET favoriteItems = '" + newFavoriteItems + "' WHERE login = '" + userToUpdate + "'";
-            break;
-         case 5:
-            String newPhoneNumber;
-            do {
-               System.out.print("Enter new phone number in XXX-XXX-XXXX format: ");
-               newPhoneNumber = myObj.nextLine();
-
-               //length of phone number restrictions 
-               if (newPhoneNumber.length() != 12 ) {
-                  System.out.println("invalid phone number: must be in XXX-XXX-XXXX format");
-                  continue; //prompts for password again 
-               }
-
-               String regex = "\\d{3}-\\d{3}-\\d{4}";
-               Pattern pattern = Pattern.compile(regex);
-               Matcher matcher = pattern.matcher(newPhoneNumber);
-
-               if (!matcher.matches()) {
-                  System.out.println("invalid phone number: must be in XXX-XXX-XXXX format");
-                  continue;
-               }
-               break;
-            } while (true);
-
-            query = "UPDATE Users SET phoneNum = '" + newPhoneNumber + "' WHERE login = '" + userToUpdate + "'";
+            // delete user
+            query = "DELETE FROM Users WHERE login = '" + userToDelete + "'";
+            try {
+               esql.executeUpdate(query);
+               System.out.println("User deleted.");
+               return null;
+            } catch (SQLException e) {
+               System.out.println(e.getMessage());
+            }
             break;
 
          case 9: return authorisedUser;
          default: System.out.println("Unrecognized choice!"); return authorisedUser;
       }
-   
-      // execute query to update user
-      try {
-         esql.executeUpdate(query);
-      } catch (SQLException e) {
-         System.err.println(e.getMessage());
-      }
 
-      return authorisedUser;      
+      return authorisedUser;
    }
 
 
