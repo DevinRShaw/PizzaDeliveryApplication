@@ -537,175 +537,263 @@ public class PizzaStore {
    public static void updateOrderStatus(PizzaStore esql) {}
 
    public static void updateMenu(PizzaStore esql, String authorisedUser) {
-      // check if manager role
-      String checkRoleQuery = "SELECT * FROM Users U WHERE U.login='" + authorisedUser + "' AND role='manager'";
 
+      // check if manager role
+      String query = "SELECT * FROM Users U WHERE U.login='" + authorisedUser + "' AND role='manager'";
       int rowCount;
       try {
-         rowCount = esql.executeQuery(checkRoleQuery);
+         rowCount = esql.executeQuery(query);
          if (rowCount == 0) {
             System.out.println("Access Denied");
-         } else {
-
-            String itemName;
-            String ingredients;
-            String typeOfItem;
-            float price;
-            String description;
-
-            String query;
-
-            // prompt if the user would like to add a new item or update an existing item
-            System.out.println("Would you like to ADD or UPDATE an item?");
-            System.out.println("------------------");
-            System.out.println("1. Add");
-            System.out.println("2. Update");
-            System.out.println(".........................");
-            System.out.println("Press any other key to go back.");
-
-            Scanner myObj = new Scanner(System.in);
-            switch (readChoice()) {
-               // add an item
-               case 1:
-                  // prompt user for the name of the item they would like to add
-                  myObj = new Scanner(System.in);
-                  System.out.print("What is the name of the item you would like to add? ");
-                  itemName = myObj.nextLine();
-
-                  //check if the item already exists
-                  query = "SELECT * FROM Items WHERE itemName='" + itemName + "'";
-                  try {
-                     rowCount = esql.executeQuery(query);
-                     if (rowCount != 0) {
-                        System.out.println("Item already exists.");
-                        break;
-                     } else {
-                        // prompt for ingredients
-                        System.out.println("Please enter the list of ingredients for this item (separated by a comma):");
-                        ingredients = myObj.nextLine();
-
-                        // prompt for type of item
-                        System.out.println("Please enter the type of item.");
-                        System.out.println("------------------------------");
-                        System.out.println("1. Drink");
-                        System.out.println("2. Entree");
-                        System.out.println("3. Side");
-                        switch (readChoice()) {
-                           case 1: typeOfItem = "drinks"; break;
-                           case 2: typeOfItem = "entree"; break;
-                           case 3: typeOfItem = "sides"; break;
-
-                           default: System.out.println("Unrecognized choice!"); return;
-                        }
-                        
-                        // prompt for price
-                        System.out.print("Please enter the price of this item: ");
-                        price = myObj.nextFloat();
-
-                        // prompt for description
-                        System.out.println("Would you like to enter a description?");
-                        System.out.println("--------------------------------");
-                        System.out.println("1. Yes");
-                        System.out.println("2. No");
-                        System.out.println("------------");
-                        switch(readChoice()) {
-                           case 1: 
-                              System.out.println("Please enter a description for this item: ");
-                              myObj.nextLine(); // consume left over newline from readChoice()
-                              description = myObj.nextLine();
-                              break;
-                           case 2:
-                              description = "";
-                              break;
-
-                           default: System.out.println("Unrecoginzed choice!"); return;
-                        }
-
-                        // add item info to db
-                        query = "INSERT INTO Items (itemName, ingredients, typeOfItem, price, description) "
-                                                + "VALUES ('" + itemName + "', '" + ingredients + "', '" + typeOfItem + "', " 
-                                                + price + ", '" + description + "')";
-                        try {
-                           esql.executeUpdate(query);
-                           System.out.println("Item added!");
-                        } catch (SQLException e) {
-                           System.err.println(e.getMessage());
-                        }
-                     }
-                  } catch (SQLException e) {
-                     System.err.println(e.getMessage());
-                  }
-                  
-                  break;
-
-               // update an item
-               case 2:
-                  // --- maybe call browse menu, so user can see the list of items here ---
-                  System.out.print("Enter the name of the item you would like to update: ");
-                  itemName = myObj.nextLine();
-
-                  // check if the item exists
-                  query = "SELECT * FROM Items WHERE itemName='" + itemName + "'";
-                  try {
-                     rowCount = esql.executeQuery(query);
-                     if (rowCount == 0) {
-                        System.out.println("Item doesn't exist."); 
-                        break;
-                     } else {
-                        
-                        System.out.println("Which category of the item would you like to update?");
-                        System.out.println("-----------------------------");
-                        System.out.println("1. Ingredients");
-                        System.out.println("2. Type of item");
-                        System.out.println("3. Price");
-                        System.out.println("4. Item description");
-                        System.out.println("---------------------");
-                        System.out.println("Press any other key to go back.");
-                        switch (readChoice()) {
-                           case 1:
-                              System.out.println("Please enter your new list of ingredients: ");
-                              ingredients = myObj.nextLine();
-                              break;
-                           case 2:
-                              System.out.println("Please enter the new item type: ");
-                              System.out.println("-----------------------------");
-                              System.out.println("1. Drink");
-                              System.out.println("2. Entree");
-                              System.out.println("3. Side");
-                              
-                              switch (readChoice()) {
-                                 case 1: typeOfItem = "drinks"; break;
-                                 case 2: typeOfItem = "entree"; break;
-                                 case 3: typeOfItem = "sides"; break;
-
-                                 default: System.out.println("Unrecognized choice!"); break;
-                              }
-                              break;
-                           case 3:
-                              System.out.println("Please enter the new price of this item: ");
-                              price = myObj.nextFloat();
-                              break;
-                           case 4:
-                              System.out.println("Please enter the new description for this item: ");
-                              description = myObj.nextLine();
-                              break;                              
-                        
-                           default: break;
-
-                        }
-                        
-                     } 
-                  } catch (SQLException e) {
-                     System.err.println(e.getMessage());
-                  }
-                  break;
-               
-               default: break;
-            }
-         }
+            return;
+         }   
       } catch (SQLException e) {
          System.err.println(e.getMessage());
       }
+
+      String itemName;
+      String ingredients;
+      String typeOfItem;
+      float price;
+      String description;
+
+      Scanner myObj = new Scanner(System.in);
+
+      // prompt if the user would like to add a new item or update an existing item
+      System.out.println("Would you like to ADD or UPDATE an item?");
+      System.out.println("------------------");
+      System.out.println("1. Add");
+      System.out.println("2. Update");
+      System.out.println(".........................");
+      System.out.println("9. Go back");
+
+      switch (readChoice()) {
+         // add an item
+         case 1:
+            // prompt user for the name of the item they would like to add
+            System.out.print("What is the name of the item you would like to add? ");
+            itemName = myObj.nextLine();
+
+            //check if the item already exists
+            query = "SELECT * FROM Items WHERE itemName='" + itemName + "'";
+            try {
+               rowCount = esql.executeQuery(query);
+               if (rowCount != 0) {
+                  System.out.println("Item already exists.");
+                  return;
+               }
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+
+            // prompt for ingredients
+            System.out.println("Please enter the list of ingredients for this item (separated by a comma):");
+            ingredients = myObj.nextLine();
+
+            // prompt for type of item
+            System.out.println("Please enter the type of item.");
+            System.out.println("------------------------------");
+            System.out.println("1. Drink");
+            System.out.println("2. Entree");
+            System.out.println("3. Side");
+            switch (readChoice()) {
+               case 1: typeOfItem = "drinks"; break;
+               case 2: typeOfItem = "entree"; break;
+               case 3: typeOfItem = "sides"; break;
+
+               default: System.out.println("Unrecognized choice!"); return;
+            }
+            
+            // prompt for price
+            System.out.print("Please enter the price of this item: ");
+            price = myObj.nextFloat();
+
+            // prompt for description
+            System.out.println("Would you like to enter a description?");
+            System.out.println("--------------------------------");
+            System.out.println("1. Yes");
+            System.out.println("2. No");
+            System.out.println("------------");
+            switch(readChoice()) {
+               case 1: 
+                  System.out.println("Please enter a description for this item: ");
+                  myObj.nextLine(); // consume left over newline from readChoice()
+                  description = myObj.nextLine();
+                  break;
+               case 2:
+                  description = "";
+                  break;
+
+               default: System.out.println("Unrecoginzed choice!"); return;
+            }
+
+            // add item info to db
+            query = "INSERT INTO Items (itemName, ingredients, typeOfItem, price, description) "
+                                    + "VALUES ('" + itemName + "', '" + ingredients + "', '" + typeOfItem + "', " 
+                                    + price + ", '" + description + "')";
+            try {
+               esql.executeUpdate(query);
+               System.out.println("Item added!");
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+            break;
+         // update an item
+         case 2:
+            // --- maybe call browse menu, so user can see the list of items here ---
+            System.out.print("Enter the name of the item you would like to update: ");
+            itemName = myObj.nextLine();
+
+            // check if the item exists
+            query = "SELECT * FROM Items WHERE itemName='" + itemName + "'";
+            try {
+               rowCount = esql.executeQuery(query);
+               if (rowCount == 0) {
+                  System.out.println("Item doesn't exist."); 
+                  return;
+               }
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+
+            // prompt which category of the item to update
+            System.out.println("Which category of the item would you like to update?");
+            System.out.println("-----------------------------");
+            System.out.println("1. Item name");
+            System.out.println("2. Ingredients");
+            System.out.println("3. Type of item");
+            System.out.println("4. Price");
+            System.out.println("5. Item description");
+            System.out.println("---------------------");
+            System.out.println("9. Go back");
+            switch (readChoice()) {
+               case 1:
+                  String newItemName;
+                  do {
+                     System.out.println("Please enter your new item name: ");
+                     newItemName = myObj.nextLine();
+
+                     //length of item name restrictions 
+                     if(newItemName.length() < 1 ){
+                        System.out.println("invalid item name: must be at least 1 character");
+                        continue; //prompts for item name again 
+                     }
+                     if(newItemName.length() > 50){
+                        System.out.println("invalid item name: must less than 51 characters");
+                        continue; //prompts for item name again 
+                     }
+                     break;
+                  } while (true);
+
+                  // update item in db
+                  query = "UPDATE Items SET itemName = '" + newItemName + "' WHERE itemName = '" + itemName + "'"; 
+                  try {
+                     esql.executeUpdate(query);
+                     System.out.println("Item updated!");
+                  } catch (SQLException e) {
+                     System.err.println(e.getMessage());
+                  }
+                  break;
+               case 2:
+                  do {
+                     System.out.println("Please enter your new list of ingredients: ");
+                     ingredients = myObj.nextLine();
+                     //length of ingredients restrictions 
+                     if (ingredients.length() < 1) {
+                        System.out.println("invalid ingredients: must be at least 1 character");
+                        continue; //prompts for ingredients again 
+                     }
+                     if(ingredients.length() > 300){
+                        System.out.println("invalid ingredients: must less than 301 characters");
+                        continue; //prompts for ingredients again 
+                     }
+                     break;
+                  } while (true);
+
+                  // update item in db
+                  query = "UPDATE Items SET ingredients = '" + ingredients + "' WHERE itemName = '" + itemName + "'"; 
+                  try {
+                     esql.executeUpdate(query);
+                     System.out.println("Item updated!");
+                  } catch (SQLException e) {
+                     System.err.println(e.getMessage());
+                  }
+                  break;
+               case 3:
+                  System.out.println("Please enter the new item type: ");
+                  System.out.println("-----------------------------");
+                  System.out.println("1. Drink");
+                  System.out.println("2. Entree");
+                  System.out.println("3. Side");
+                  
+                  switch (readChoice()) {
+                     case 1: typeOfItem = "drinks"; break;
+                     case 2: typeOfItem = "entree"; break;
+                     case 3: typeOfItem = "sides"; break;
+
+                     default: System.out.println("Unrecognized choice!"); return;
+                  }
+
+                  // update item in db
+                  query = "UPDATE Items SET typeOfItem = '" + typeOfItem + "' WHERE itemName = '" + itemName + "'"; 
+                  try {
+                     esql.executeUpdate(query);
+                     System.out.println("Item updated!");
+                  } catch (SQLException e) {
+                     System.err.println(e.getMessage());
+                  }
+                  break;
+               case 4:
+                  do {
+                     System.out.println("Please enter the new price of this item: ");
+                     // check if the input is a valid float
+                     if (myObj.hasNextFloat()) {
+                        price = myObj.nextFloat();
+                        break;
+                     } else {
+                        System.out.println("Invalid price value.");
+                        myObj.nextLine(); // consume invalid input
+                     }
+                  } while (true);
+
+                  // update item in db
+                  query = "UPDATE Items SET price = '" + price + "' WHERE itemName = '" + itemName + "'"; 
+                  try {
+                     esql.executeUpdate(query);
+                     System.out.println("Item updated!");
+                  } catch (SQLException e) {
+                     System.err.println(e.getMessage());
+                  }
+                  break;
+               case 5:
+                  System.out.println("Please enter the new description for this item: ");
+                  description = myObj.nextLine();
+
+                  // update item in db
+                  query = "UPDATE Items SET description = '" + description + "' WHERE itemName = '" + itemName + "'"; 
+                  try {
+                     esql.executeUpdate(query);
+                     System.out.println("Item updated!");
+                  } catch (SQLException e) {
+                     System.err.println(e.getMessage());
+                  }
+                  break;                              
+            
+               case 9: break;
+               default: System.out.println("Unrecognized choice!"); break;
+            }
+            break;
+         case 9: break;
+         default: System.out.println("Unrecognized choice!"); break;
+      }
+
+      // test
+                  query = "SELECT * FROM Items";
+                  try {
+                     esql.executeQueryAndPrintResult(query);
+                  } catch (SQLException e) {
+                     System.out.println(e.getMessage());
+                  }
    }
 
    public static void updateUser(PizzaStore esql) {}
