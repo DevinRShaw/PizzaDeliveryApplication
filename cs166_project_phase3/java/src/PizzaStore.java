@@ -521,28 +521,33 @@ public class PizzaStore {
    public static void viewProfile(PizzaStore esql, String authorisedUser) {
 
       // query to find info for authorised user
-      String query = "SELECT U.favoriteItems, U.phoneNum FROM Users U WHERE U.login='" + authorisedUser + "'";
-
+      String query = "SELECT phoneNum, favoriteItems FROM Users WHERE login='" + authorisedUser + "'";
       try {
          // execute query and print results
          int rowCount = esql.executeQueryAndPrintResult(query);
-         return;
-
       } catch (SQLException e) {
          System.err.println(e.getMessage());
       }
+
    }
 
    public static void updateProfile(PizzaStore esql, String authorisedUser) {
       
       Scanner myObj = new Scanner(System.in);
+      int rowCount;
+      String query;
+
+      // display user's profile
+      viewProfile(esql, authorisedUser);
 
       // ask user what they would like to update
       System.out.println("What would you like to update?");
-      System.out.println("---------");
+      System.out.println("------------------");
       System.out.println("1. Phone Number");
-      System.out.println("2. Favorite Items");
+      System.out.println("2. Favorite Item");
       System.out.println("3. Password");
+      System.out.println("------------------");
+      System.out.println("9. Go back");
 
       switch (readChoice()){
          // update phone number
@@ -552,12 +557,12 @@ public class PizzaStore {
             String phoneNum = myObj.nextLine();
             
             // query to update user's phone number in db
-            String updatePhoneNumQuery = "UPDATE Users SET phoneNum = '" + phoneNum + "' WHERE login = '" + authorisedUser + "'";
+            query = "UPDATE Users SET phoneNum = '" + phoneNum + "' WHERE login = '" + authorisedUser + "'";
 
             try {
                // execute query
-               int rowCount = esql.executeQuery(updatePhoneNumQuery);
-
+               esql.executeUpdate(query);
+               System.out.println("Phone number updated!");
             } catch (SQLException e) {
                System.err.println(e.getMessage());
             }
@@ -565,17 +570,28 @@ public class PizzaStore {
 
          // update favorite items
          case 2: 
-            // prompt user for new favorite items
-            System.out.println("Enter your new favorite items: "); 
-            String favoriteItems = myObj.nextLine();
+            // prompt user for new favorite item
+            System.out.println("Enter your new favorite item: "); 
+            String favoriteItem = myObj.nextLine();
+
+            // check if item exists
+            query = "SELECT * FROM Items WHERE itemName = '" + favoriteItem + "'";
+            try {
+               rowCount = esql.executeQuery(query);
+               if (rowCount == 0) {
+                  System.out.println("Item doesn't exist.");
+                  break;
+               }
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
 
             // query to update user's phone number in db
-            String updateFavoriteItemsQuery = "UPDATE Users SET favoriteItems = '" + favoriteItems + "' WHERE login = '" + authorisedUser + "'";
-            
+            query = "UPDATE Users SET favoriteItems = '" + favoriteItem + "' WHERE login = '" + authorisedUser + "'";
             try {
                // execute query
-               int rowCount = esql.executeQuery(updateFavoriteItemsQuery);
-
+               esql.executeUpdate(query);
+               System.out.println("Favorite item updated!");
             } catch (SQLException e) {
                System.err.println(e.getMessage());
             }
@@ -583,24 +599,36 @@ public class PizzaStore {
 
          // update password
          case 3: 
-            // prompt user for new password
-            System.out.println("Enter your new password: "); 
-            String password = myObj.nextLine();
+            String password;
+            do {
+               // prompt user for new password
+               System.out.println("Enter your new password: "); 
+               password = myObj.nextLine();
+
+               // password validation
+               if (password.length() < 1) {
+                  System.out.println("invalid password: must be at least 1 character");
+                  continue;
+               }
+               if (password.length() > 30) {
+                  System.out.println("invalid password: must be less than 31 characters");
+                  continue;
+               }
+               break;
+            } while (true);
 
             // query to update user's password in db
-            String updatePasswordQuery = "UPDATE Users SET password = '" + password + "' WHERE login = '" + authorisedUser + "'";
-            
+            query = "UPDATE Users SET password = '" + password + "' WHERE login = '" + authorisedUser + "'";
             try {
                // execute query
-               int rowCount = esql.executeQuery(updatePasswordQuery);
-
+               esql.executeUpdate(query);
+               System.out.println("Password updated.");
             } catch (SQLException e) {
                System.err.println(e.getMessage());
             }
             break;
 
-
-
+         case 9: break;
          default : System.out.println("Unrecognized choice!"); break;
       }
    }
