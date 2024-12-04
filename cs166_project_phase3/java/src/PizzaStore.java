@@ -300,7 +300,7 @@ public class PizzaStore {
                    case 6: viewRecentOrders(esql); break;
                    case 7: viewOrderInfo(esql); break;
                    case 8: viewStores(esql); break;
-                   case 9: updateOrderStatus(esql); break;
+                   case 9: updateOrderStatus(esql, authorisedUser); break;
                    case 10: updateMenu(esql); break;
                    case 11: updateUser(esql); break;
 
@@ -505,7 +505,7 @@ public class PizzaStore {
             System.out.println("Invalid credentials");
             return null;
          } else {
-            return "exists";
+            return username;
          }
       } catch (SQLException e) {
          System.out.println("Error checking credentials: " + e.getMessage());
@@ -534,7 +534,71 @@ public class PizzaStore {
    public static void viewRecentOrders(PizzaStore esql) {}
    public static void viewOrderInfo(PizzaStore esql) {}
    public static void viewStores(PizzaStore esql) {}
-   public static void updateOrderStatus(PizzaStore esql) {}
+
+   public static void updateOrderStatus(PizzaStore esql, String authorisedUser) {
+
+      String query;
+      Scanner myObj = new Scanner(System.in);
+      int rowCount;
+
+      // check if manager or driver
+      query = "SELECT * FROM Users U WHERE U.login='" + authorisedUser + "' AND (role='manager' OR role='driver')";
+      try {
+         rowCount = esql.executeQuery(query);
+         if (rowCount == 0) {
+            System.out.println("Access Denied.");
+            return;
+         }
+      } catch (SQLException e) {
+         System.err.println(e.getMessage());
+         return;
+      }
+
+      String orderID;
+      do {
+         System.out.print("Enter the ID of the order you would like to update: ");
+         orderID = myObj.nextLine();
+         // check if order exists
+         query = "SELECT * FROM FoodOrder WHERE orderID = " + orderID;
+         try {
+            rowCount = esql.executeQuery(query);
+            if (rowCount == 0) {
+               System.out.println("Order not found.");
+               continue;
+            }
+         } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            continue;
+         }
+         break;
+      } while (true);
+
+      System.out.println("Enter the new order status: ");
+      System.out.println("-------------------");
+      System.out.println("1. Complete");
+      System.out.println("2. Incomplete");
+      System.out.println("-------------------");
+      System.out.println("9. Go back");
+      String newOrderStatus;
+      switch (readChoice()) {
+         case 1: newOrderStatus = "complete"; break;
+         case 2: newOrderStatus = "incomplete"; break;
+
+         case 9: return;
+         default: System.out.println("Unrecognized choice!"); return;
+      }
+
+      // update order
+      query = "UPDATE FoodOrder SET orderStatus = '" + newOrderStatus + "' WHERE orderID = '" + orderID + "'";
+      try {
+         esql.executeUpdate(query);
+         System.out.println("Order status updated!");
+      } catch (SQLException e) {
+         System.err.println(e.getMessage());
+      }
+   
+   }
+
    public static void updateMenu(PizzaStore esql) {}
    public static void updateUser(PizzaStore esql) {}
 
