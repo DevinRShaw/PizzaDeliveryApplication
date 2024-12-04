@@ -559,11 +559,14 @@ public class PizzaStore {
 
       Scanner myObj = new Scanner(System.in);
 
+      // --- maybe call browse menu, so user can see the list of items here ---
+
       // prompt if the user would like to add a new item or update an existing item
-      System.out.println("Would you like to ADD or UPDATE an item?");
+      System.out.println("Would you like to ADD, UPDATE, or DELETE an item?");
       System.out.println("------------------");
       System.out.println("1. Add");
       System.out.println("2. Update");
+      System.out.println("3. Delete");
       System.out.println(".........................");
       System.out.println("9. Go back");
 
@@ -576,11 +579,11 @@ public class PizzaStore {
                itemName = myObj.nextLine();
 
                //length of item name restrictions 
-               if(newItemName.length() < 1 ){
+               if(itemName.length() < 1 ){
                   System.out.println("invalid item name: must be at least 1 character");
                   continue; //prompts for item name again 
                }
-               if(newItemName.length() > 50){
+               if(itemName.length() > 50){
                   System.out.println("invalid item name: must less than 51 characters");
                   continue; //prompts for item name again 
                }
@@ -674,7 +677,6 @@ public class PizzaStore {
             break;
          // update an item
          case 2:
-            // --- maybe call browse menu, so user can see the list of items here ---
             System.out.print("Enter the name of the item you would like to update: ");
             itemName = myObj.nextLine();
 
@@ -693,42 +695,14 @@ public class PizzaStore {
             // prompt which category of the item to update
             System.out.println("Which category of the item would you like to update?");
             System.out.println("-----------------------------");
-            System.out.println("1. Item name");
-            System.out.println("2. Ingredients");
-            System.out.println("3. Type of item");
-            System.out.println("4. Price");
-            System.out.println("5. Item description");
+            System.out.println("1. Ingredients");
+            System.out.println("2. Type of item");
+            System.out.println("3. Price");
+            System.out.println("4. Item description");
             System.out.println("---------------------");
             System.out.println("9. Go back");
             switch (readChoice()) {
                case 1:
-                  String newItemName;
-                  do {
-                     System.out.println("Please enter your new item name: ");
-                     newItemName = myObj.nextLine();
-
-                     //length of item name restrictions 
-                     if(newItemName.length() < 1 ){
-                        System.out.println("invalid item name: must be at least 1 character");
-                        continue; //prompts for item name again 
-                     }
-                     if(newItemName.length() > 50){
-                        System.out.println("invalid item name: must less than 51 characters");
-                        continue; //prompts for item name again 
-                     }
-                     break;
-                  } while (true);
-
-                  // update item in db
-                  query = "UPDATE Items SET itemName = '" + newItemName + "' WHERE itemName = '" + itemName + "'"; 
-                  try {
-                     esql.executeUpdate(query);
-                     System.out.println("Item updated!");
-                  } catch (SQLException e) {
-                     System.err.println(e.getMessage());
-                  }
-                  break;
-               case 2:
                   do {
                      System.out.println("Please enter your new list of ingredients: ");
                      ingredients = myObj.nextLine();
@@ -753,7 +727,7 @@ public class PizzaStore {
                      System.err.println(e.getMessage());
                   }
                   break;
-               case 3:
+               case 2:
                   System.out.println("Please enter the new item type: ");
                   System.out.println("-----------------------------");
                   System.out.println("1. Drink");
@@ -777,7 +751,7 @@ public class PizzaStore {
                      System.err.println(e.getMessage());
                   }
                   break;
-               case 4:
+               case 3:
                   do {
                      System.out.println("Please enter the new price of this item: ");
                      // check if the input is a valid float
@@ -799,7 +773,7 @@ public class PizzaStore {
                      System.err.println(e.getMessage());
                   }
                   break;
-               case 5:
+               case 4:
                   System.out.println("Please enter the new description for this item: ");
                   description = myObj.nextLine();
 
@@ -817,6 +791,35 @@ public class PizzaStore {
                default: System.out.println("Unrecognized choice!"); break;
             }
             break;
+         // delete an item
+         case 3:
+             // --- maybe call browse menu, so user can see the list of items here ---
+            System.out.print("Enter the name of the item you would like to delete: ");
+            itemName = myObj.nextLine();
+
+            // check if the item exists
+            query = "SELECT * FROM Items WHERE itemName='" + itemName + "'";
+            try {
+               rowCount = esql.executeQuery(query);
+               if (rowCount == 0) {
+                  System.out.println("Item doesn't exist."); 
+                  return;
+               }
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+
+            // delete item from db
+            query = "DELETE FROM Items WHERE itemName = '" + itemName + "'";
+            try { 
+               esql.executeUpdate(query);
+               System.out.println("Item deleted.");
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+            break;
+
+
          case 9: break;
          default: System.out.println("Unrecognized choice!"); break;
       }
