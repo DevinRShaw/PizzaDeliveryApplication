@@ -295,7 +295,7 @@ public class PizzaStore {
                    case 1: viewProfile(esql); break;
                    case 2: updateProfile(esql); break;
                    case 3: viewMenu(esql); break;
-                   case 4: placeOrder(esql); break;
+                   case 4: placeOrder(esql, authorisedUser); break;
                    case 5: viewAllOrders(esql, authorisedUser); break;
                    case 6: viewRecentOrders(esql, authorisedUser); break;
                    case 7: viewOrderInfo(esql, authorisedUser); break;
@@ -774,7 +774,232 @@ public class PizzaStore {
    public static void viewProfile(PizzaStore esql) {}
    public static void updateProfile(PizzaStore esql) {}
    
-   public static void placeOrder(PizzaStore esql) {}
+   public static void placeOrder(PizzaStore esql, String authorisedUser) {
+
+      String storeCity;
+
+      //store city validation loop 
+      do {
+         //city input
+         Scanner myObj = new Scanner(System.in);
+         System.out.print("Enter Store City: ");
+         storeCity = myObj.nextLine();
+
+         //length of city restrictions 
+         if(storeCity.length() < 5 ){
+            System.out.println("invalid city name: must be at least 5 characters");
+            continue; //prompts for city again 
+         }
+
+
+         //store city existence 
+
+         String existsQuery = "SELECT * FROM Store S WHERE S.city = '" + storeCity + "'";
+
+         try {
+            // Use the executeQuery method from the PizzaStore instance (esql)
+            int existingCount = esql.executeQuery(existsQuery); // This will return the number of rows returned
+
+            if (existingCount == 0) { // if more than 0 there is a user with that name 
+                System.out.println("No stores in " + storeCity);
+                continue; // prompts for city again
+            }
+            
+            break; // Exit the loop when store in city exists 
+
+        } catch (SQLException e) {
+            System.err.println("Error checking city: " + e.getMessage());
+            continue; // Continue the loop if there is an exception
+        }
+      }while (true);
+
+
+      //at this point we have the city of the store, handle non unique store city concept later 
+
+      //item input validation 
+
+      List<String> items = new ArrayList<String>();
+      List<Integer> quantities = new ArrayList<Integer>(); // To store item quantities
+      String item = "";
+
+      do {
+         //item input loop
+         Scanner myObj = new Scanner(System.in);
+         System.out.print("Enter Item (one at a time)(\"done\" to finish): ");
+         item = myObj.nextLine();
+
+         if(item.equals("done") && items.size() != 0){
+            break; //exit loop everything 
+         }
+
+         if(item == "done" && items.size() == 0){
+            System.out.print("Need at least 1 item for an order");
+            continue; //exit loop everything 
+         }
+
+
+         //length of item restrictions 
+         if(item.length() < 3 ){
+            System.out.println("invalid item name: must be at least 3 characters");
+            continue; //prompts for item again 
+         }
+
+
+         //item existence 
+         if(item != "done"){
+
+            String existsQuery = "SELECT * FROM Items I WHERE I.itemName = '" + item + "'";
+
+            try {
+               // Use the executeQuery method from the PizzaStore instance (esql)
+               int existingCount = esql.executeQuery(existsQuery); // This will return the number of rows returned
+
+               if (existingCount == 0) { // if more than 0 there is a user with that name 
+                  System.out.println("No items named " + item);
+                  continue; // prompts for city again
+               }
+
+               // Prompt for quantity
+               int quantity = 0;
+               do {
+                  System.out.print("Enter quantity for " + item + ": ");
+                  String quantityInput = myObj.nextLine();
+                  try {
+                     quantity = Integer.parseInt(quantityInput);
+
+                     if (quantity <= 0) {
+                        System.out.println("Quantity must be a positive integer");
+                        continue; // Prompt for quantity again
+                     }
+                     break; // Valid quantity entered
+                  } catch (NumberFormatException e) {
+                     System.out.println("Invalid input. Please enter a valid integer.");
+                  }
+               } while (true);
+               
+               items.add(item);
+               quantities.add(quantity);
+
+            } catch (SQLException e) {
+               System.err.println("Error checking city: " + e.getMessage());
+               continue; // Continue the loop if there is an exception
+            }
+         }
+         
+
+      }while (true);
+
+      //at this point we have a list of items and a list of their quantities
+         //input info into FoodOrder, (orderID,login,storeID, total price, orderTimestamp, orderStatus)
+         //input each ith place in both lists into item in order (orderID, item, quantity)
+      
+      //storeID 
+      String query = "SELECT storeID FROM Store WHERE city = '" + storeCity + "'";
+      int storeID = -1;
+      try {
+         // Execute query and retrieve results
+         List<List<String>> results = esql.executeQueryAndReturnResult(query);
+
+         // Parse the first storeID from the results
+         storeID = Integer.parseInt(results.get(0).get(0));
+
+
+      } catch (SQLException e) {
+         System.err.println("Error retrieving store: " + e.getMessage());
+      }
+
+      //calculating the total price of the order
+      double totalPrice = 0; // Initialize total price
+
+      for (int i = 0; i < items.size(); i++) {
+         String itemIn = items.get(i);       // Current item name
+         int quantityIn = quantities.get(i); // Quantity for the current item
+
+         // Query to get the price of the current item
+         String queryPrice = "SELECT price FROM Items WHERE itemName = '" + itemIn + "'";
+
+         try {
+               // Execute the query and retrieve the price
+               List<List<String>> resultsPrice = esql.executeQueryAndReturnResult(queryPrice);
+
+               if (resultsPrice.isEmpty()) {
+                  System.out.println("Error: Item '" + itemIn + "' not found in the database.");
+                  continue;
+               }
+
+               // Parse the price from the query result
+               double price = Double.parseDouble(resultsPrice.get(0).get(0));
+
+               // Calculate the cost for the current item and add to total price
+               totalPrice += price * quantityIn;
+
+         } catch (SQLException e) {
+               System.err.println("Error retrieving price for item '" + itemIn + "': " + e.getMessage());
+         }
+      }
+
+      // Get the last inserted orderID (for use in ItemsInOrder table)
+      String getOrderIDinQuery = "SELECT MAX(orderID) FROM FoodOrder";
+      int orderIDin = 0;
+      try {
+         List<List<String>> results = esql.executeQueryAndReturnResult(getOrderIDinQuery);
+
+         if (!results.isEmpty() && !results.get(0).isEmpty()) {
+               orderIDin = Integer.parseInt(results.get(0).get(0)) + 1; // Increment the orderID
+         }
+      } catch (SQLException e) {
+         System.err.println("Error retrieving orderID: " + e.getMessage());
+      }
+
+
+
+      // Insert the order into the FoodOrder table
+      String insertOrderQuery = "INSERT INTO FoodOrder (orderID, login, storeID, totalPrice, orderTimestamp, orderStatus) "
+            + "VALUES (" + orderIDin + ", '" + authorisedUser + "', " + storeID + ", " + totalPrice + ", CURRENT_TIMESTAMP, 'Pending')";
+
+      try {
+         esql.executeUpdate(insertOrderQuery);
+      } catch (SQLException e) {
+         System.err.println("Error inserting order: " + e.getMessage());
+         return;  // Exit if the insertion fails
+      }
+
+
+      // Get the last inserted orderID (for use in ItemsInOrder table)
+      String getOrderIDQuery = "SELECT MAX(orderID) FROM FoodOrder";
+      int orderID = 0;
+      try {
+         // Use executeQueryAndReturnResult to get the result as a List of Lists
+         List<List<String>> results = esql.executeQueryAndReturnResult(getOrderIDQuery);
+         
+         // Check if the results are not empty and extract the first value (which is the MAX(orderID))
+         if (!results.isEmpty() && !results.get(0).isEmpty()) {
+            orderID = Integer.parseInt(results.get(0).get(0));  // Get the orderID of the most recent order
+         }
+      } catch (SQLException e) {
+         System.err.println("Error retrieving orderID: " + e.getMessage());
+      }
+
+      // Step 7: Insert Items into the ItemsInOrder Table
+      for (int i = 0; i < items.size(); i++) {
+         String itemName = items.get(i);       // Current item name
+         int quantity = quantities.get(i);     // Quantity for the current item
+
+         String insertItemQuery = "INSERT INTO ItemsInOrder (orderID, itemName, quantity) "
+                  + "VALUES (" + orderID + ", '" + itemName + "', " + quantity + ")";
+         try {
+               esql.executeUpdate(insertItemQuery);
+         } catch (SQLException e) {
+               System.err.println("Error inserting item: " + e.getMessage());
+         }
+      }
+
+      // Step 8: Confirmation
+      System.out.println("Your order has been placed successfully!");
+      System.out.println("Total price: $" + totalPrice);
+
+
+   }
 
 
    public static void viewAllOrders(PizzaStore esql, String authorisedUser) {
