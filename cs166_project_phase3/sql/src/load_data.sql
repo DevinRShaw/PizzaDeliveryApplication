@@ -2,21 +2,21 @@
 /*/home/csmajs/dshaw013/PizzaDeliveryApplication/cs166_project_phase3/data*/
 
 COPY Users
-FROM '/home/csmajs/dshaw013/PizzaDeliveryApplication/cs166_project_phase3/data/users.csv'
+FROM '/home/csmajs/mnguy602/PizzaDeliveryApplication/cs166_project_phase3/data/users.csv'
 WITH DELIMITER ',' CSV HEADER;
 
 COPY Items
-FROM '/home/csmajs/dshaw013/PizzaDeliveryApplication/cs166_project_phase3/data/items.csv'
+FROM '/home/csmajs/mnguy602/PizzaDeliveryApplication/cs166_project_phase3/data/items.csv'
 WITH DELIMITER ',' CSV HEADER;
 
 COPY Store
-FROM '/home/csmajs/dshaw013/PizzaDeliveryApplication/cs166_project_phase3/data/store.csv'
+FROM '/home/csmajs/mnguy602/PizzaDeliveryApplication/cs166_project_phase3/data/store.csv'
 WITH DELIMITER ',' CSV HEADER;
 
 COPY FoodOrder
-FROM '/home/csmajs/dshaw013/PizzaDeliveryApplication/cs166_project_phase3/data/foodorder.csv'
+FROM '/home/csmajs/mnguy602/PizzaDeliveryApplication/cs166_project_phase3/data/foodorder.csv'
 WITH DELIMITER ',' CSV HEADER;
 
 COPY ItemsInOrder
-FROM '/home/csmajs/dshaw013/PizzaDeliveryApplication/cs166_project_phase3/data/itemsinorder.csv'
+FROM '/home/csmajs/mnguy602/PizzaDeliveryApplication/cs166_project_phase3/data/itemsinorder.csv'
 WITH DELIMITER ',' CSV HEADER;
