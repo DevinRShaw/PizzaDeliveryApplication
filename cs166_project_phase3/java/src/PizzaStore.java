@@ -478,10 +478,7 @@ public class PizzaStore {
     * @return User login or null is the user does not exist
     **/
    public static String LogIn(PizzaStore esql){
-<<<<<<< HEAD
-=======
       
->>>>>>> 7432f7c12cb52cc2ad0e59bf890b86a0ac83d363
       String username;
       String password;
 
@@ -509,18 +506,9 @@ public class PizzaStore {
             return username;
          }
       } catch (SQLException e) {
-<<<<<<< HEAD
          System.out.println("Error checking credentials: " + e.getMessage());
          return null;
       }
-=======
-         System.err.println("Error checking credentials: " + e.getMessage());
-         return null;
-      }
-
-      
-
->>>>>>> 7432f7c12cb52cc2ad0e59bf890b86a0ac83d363
    }//end
 
 
@@ -762,8 +750,6 @@ public class PizzaStore {
          }
       }
 
-
-         
    }
 
 
