@@ -300,13 +300,8 @@ public class PizzaStore {
                    case 6: viewRecentOrders(esql); break;
                    case 7: viewOrderInfo(esql); break;
                    case 8: viewStores(esql); break;
-                   case 9: updateOrderStatus(esql); break;
-                   case 10: updateMenu(esql, authorisedUser); break;
-                   case 11: updateUser(esql); break;
-
-
                    case 9: updateOrderStatus(esql, authorisedUser); break;
-                   case 10: updateMenu(esql); break;
+                   case 10: updateMenu(esql, authorisedUser); break;
                    case 11: authorisedUser = updateUser(esql, authorisedUser); break;
 
                    case 20: usermenu = false; break;
@@ -508,7 +503,6 @@ public class PizzaStore {
             System.out.println("Invalid credentials");
             return null;
          } else {
-            return username;
             return username;
          }
       } catch (SQLException e) {
