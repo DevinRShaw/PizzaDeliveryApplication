@@ -519,15 +519,29 @@ public class PizzaStore {
    public static void viewProfile(PizzaStore esql, String authorisedUser) {
 
       // query to find info for authorised user
-      String query = "SELECT phoneNum, favoriteItems FROM Users WHERE login='" + authorisedUser + "'";
+      String phoneNumQuery = "SELECT phoneNum FROM Users WHERE login='" + authorisedUser + "'";
+      String favoriteItemsQuery = "SELECT favoriteItems FROM Users WHERE login='" + authorisedUser + "'";
+
+      List<List<String>> results;
+
       try {
-         // execute query and print results
-         int rowCount = esql.executeQueryAndPrintResult(query);
+         // print out users
+         System.out.println("");
+         System.out.println("--------------------------------");
+         System.out.print("Phone Number: ");
+         results = esql.executeQueryAndReturnResult(phoneNumQuery);
+         System.out.println(results.get(0));
+         System.out.print("Favorite Item(s): ");
+         results = esql.executeQueryAndReturnResult(favoriteItemsQuery);
+         System.out.println(results.get(0));
+         System.out.println("--------------------------------");
+         System.out.println("");
       } catch (SQLException e) {
          System.err.println(e.getMessage());
       }
 
    }
+
 
    public static void updateProfile(PizzaStore esql, String authorisedUser) {
       
@@ -550,12 +564,31 @@ public class PizzaStore {
       switch (readChoice()){
          // update phone number
          case 1: 
+            String newPhoneNumber;
             // prompt user for new phone number
-            System.out.println("Enter your new phone number: "); 
-            String phoneNum = myObj.nextLine();
-            
+            do {
+               System.out.print("Enter your new phone number: "); 
+               newPhoneNumber = myObj.nextLine();
+
+               //length of phone number restrictions 
+               if (newPhoneNumber.length() != 12 ) {
+                  System.out.println("invalid phone number: must be in XXX-XXX-XXXX format");
+                  continue; //prompts for password again 
+               }
+
+               String regex = "\\d{3}-\\d{3}-\\d{4}";
+               Pattern pattern = Pattern.compile(regex);
+               Matcher matcher = pattern.matcher(newPhoneNumber);
+
+               if (!matcher.matches()) {
+                  System.out.println("invalid phone number: must be in XXX-XXX-XXXX format");
+                  continue;
+               }
+               break;
+            } while (true);
+
             // query to update user's phone number in db
-            query = "UPDATE Users SET phoneNum = '" + phoneNum + "' WHERE login = '" + authorisedUser + "'";
+            query = "UPDATE Users SET phoneNum = '" + newPhoneNumber + "' WHERE login = '" + authorisedUser + "'";
 
             try {
                // execute query
@@ -567,25 +600,57 @@ public class PizzaStore {
             break;
 
          // update favorite items
-         case 2: 
-            // prompt user for new favorite item
-            System.out.println("Enter your new favorite item: "); 
-            String favoriteItem = myObj.nextLine();
+         case 2:
+            //list of items
+            List<String> favItemsResult = new ArrayList<>(); 
 
-            // check if item exists
-            query = "SELECT * FROM Items WHERE itemName = '" + favoriteItem + "'";
+            // print and add items to favItemsResult
+            query = "SELECT * FROM Items";
+
             try {
-               rowCount = esql.executeQuery(query);
-               if (rowCount == 0) {
-                  System.out.println("Item doesn't exist.");
-                  break;
+               List<List<String>> results = esql.executeQueryAndReturnResult(query);
+               
+               for (int i = 0; i < results.size(); i++) {
+                  List<String> record = results.get(i);
+                  System.out.println(record);
+
+                  //create a list of items 
+                  favItemsResult.add(record.get(0).trim());
                }
             } catch (SQLException e) {
                System.err.println(e.getMessage());
             }
 
+            boolean validInput;
+            String favItems;
+
+            do {
+               validInput = true;
+               // prompt user for new favorite item
+               System.out.print("Enter your new favorite item(s) (leave \", \" between multiple items): "); 
+               favItems = myObj.nextLine();
+
+               // Split the input string by spaces
+               String[] favItemsArr = favItems.split(",\\s+");  // "\\s+" handles multiple spaces
+               List<String> typesList = Arrays.asList(favItemsArr);
+
+               // Check if each favitem in the input is present in the favItemsResult list
+               for (String favItem : favItemsArr) {
+                  if (!favItemsResult.contains(favItem)) {
+                     System.err.println("Error: Item '" + favItem + "' is not valid.");
+                     validInput = false;
+                     break;
+                  }
+               }
+
+               // If input is valid, break the loop; otherwise, prompt for input again
+               if (validInput) break; // Exit the loop if the input is valid
+
+            }
+            while (!validInput);
+
             // query to update user's phone number in db
-            query = "UPDATE Users SET favoriteItems = '" + favoriteItem + "' WHERE login = '" + authorisedUser + "'";
+            query = "UPDATE Users SET favoriteItems = '" + favItems + "' WHERE login = '" + authorisedUser + "'";
             try {
                // execute query
                esql.executeUpdate(query);
@@ -666,7 +731,6 @@ public class PizzaStore {
 
             case 2: 
                //print out availible types for user to filter by 
-
                List<String> typesResult = new ArrayList<>(); //list of types
 
                String typeListQuery = "SELECT DISTINCT typeOfItem FROM Items";
@@ -707,7 +771,6 @@ public class PizzaStore {
                   // Split the input string by spaces
                   String[] typesArray = types.split("\\s+");  // "\\s+" handles multiple spaces
                   List<String> typesList = Arrays.asList(typesArray);
-
 
                   // Flag to track if the input is valid
                   boolean validInput = true;
@@ -1268,9 +1331,22 @@ public class PizzaStore {
 
       Scanner myObj = new Scanner(System.in);
 
-      // --- maybe call browse menu, so user can see the list of items here ---
+      // display menu
+      query = "SELECT * FROM Items";
+      try {
+         // print out users
+         List<List<String>> results = esql.executeQueryAndReturnResult(query);
+
+         for (int i = 0; i < results.size(); i++) {
+            List<String> record = results.get(i);
+            System.out.println(record);
+         }
+      } catch (SQLException e) {
+         System.err.println(e.getMessage());
+      }
 
       // prompt if the user would like to add a new item or update an existing item
+      System.out.println("");
       System.out.println("Would you like to ADD, UPDATE, or DELETE an item?");
       System.out.println("------------------");
       System.out.println("1. Add");
@@ -1284,8 +1360,10 @@ public class PizzaStore {
          case 1:
             do {
                // prompt user for the name of the item they would like to add
-               System.out.print("What is the name of the item you would like to add? ");
+               System.out.print("What is the name of the item you would like to add (enter to go back)? ");
                itemName = myObj.nextLine();
+
+               if (itemName.isEmpty()) return;
 
                //length of item name restrictions 
                if(itemName.length() < 1 ){
@@ -1558,7 +1636,12 @@ public class PizzaStore {
       query = "SELECT * FROM Users";
       try {
          // print out users
-         esql.executeQueryAndPrintResult(query);
+         List<List<String>> results = esql.executeQueryAndReturnResult(query);
+
+         for (int i = 0; i < results.size(); i++) {
+            List<String> record = results.get(i);
+            System.out.println(record);
+         }
       } catch (SQLException e) {
          System.err.println(e.getMessage());
       }
