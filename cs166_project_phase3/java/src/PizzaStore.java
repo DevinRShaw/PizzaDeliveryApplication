@@ -298,7 +298,7 @@ public class PizzaStore {
                    case 4: placeOrder(esql, authorisedUser); break;
                    case 5: viewAllOrders(esql, authorisedUser); break;
                    case 6: viewRecentOrders(esql, authorisedUser); break;
-                   case 7: viewOrderInfo(esql, authorisedUser); break;
+                   case 7: viewOrderInfo(esql, authorisedUser); break;                   
                    case 8: viewStores(esql); break;
                    case 9: updateOrderStatus(esql, authorisedUser); break;
                    case 10: updateMenu(esql, authorisedUser); break;
@@ -466,9 +466,9 @@ public class PizzaStore {
             System.out.println("User: " + userName + " created");
 
          
-        } catch (SQLException e) {
+      } catch (SQLException e) {
             System.err.println("Error creating new user: " + e.getMessage());
-        }
+      }
 
    }//end CreateUser
 
@@ -506,32 +506,134 @@ public class PizzaStore {
             return username;
          }
       } catch (SQLException e) {
-         System.out.println("Error checking credentials: " + e.getMessage());
+         System.err.println("Error checking credentials: " + e.getMessage());
          return null;
       }
+
+      
+
    }//end
 
+// Rest of the functions definition go in here
 
+   public static void viewProfile(PizzaStore esql, String authorisedUser) {
 
-/*default query 
-      String defaultQuery = "SELECT * FROM Items";
-         
+      // query to find info for authorised user
+      String query = "SELECT phoneNum, favoriteItems FROM Users WHERE login='" + authorisedUser + "'";
       try {
-         List<List<String>> results = esql.executeQueryAndReturnResult(listQuery);
-
-         for (int i = 0; i < results.size(); i++) {
-            List<String> record = results.get(i);
-            System.out.println(record);
-         }
-
+         // execute query and print results
+         int rowCount = esql.executeQueryAndPrintResult(query);
       } catch (SQLException e) {
-            // Handle SQL exception (e.g., problem with the query or connection)
-            System.err.println("SQL error: " + e.getMessage());
+         System.err.println(e.getMessage());
       }
-*/
+
+   }
+
+   public static void updateProfile(PizzaStore esql, String authorisedUser) {
+      
+      Scanner myObj = new Scanner(System.in);
+      int rowCount;
+      String query;
+
+      // display user's profile
+      viewProfile(esql, authorisedUser);
+
+      // ask user what they would like to update
+      System.out.println("What would you like to update?");
+      System.out.println("------------------");
+      System.out.println("1. Phone Number");
+      System.out.println("2. Favorite Item");
+      System.out.println("3. Password");
+      System.out.println("------------------");
+      System.out.println("9. Go back");
+
+      switch (readChoice()){
+         // update phone number
+         case 1: 
+            // prompt user for new phone number
+            System.out.println("Enter your new phone number: "); 
+            String phoneNum = myObj.nextLine();
+            
+            // query to update user's phone number in db
+            query = "UPDATE Users SET phoneNum = '" + phoneNum + "' WHERE login = '" + authorisedUser + "'";
+
+            try {
+               // execute query
+               esql.executeUpdate(query);
+               System.out.println("Phone number updated!");
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+            break;
+
+         // update favorite items
+         case 2: 
+            // prompt user for new favorite item
+            System.out.println("Enter your new favorite item: "); 
+            String favoriteItem = myObj.nextLine();
+
+            // check if item exists
+            query = "SELECT * FROM Items WHERE itemName = '" + favoriteItem + "'";
+            try {
+               rowCount = esql.executeQuery(query);
+               if (rowCount == 0) {
+                  System.out.println("Item doesn't exist.");
+                  break;
+               }
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+
+            // query to update user's phone number in db
+            query = "UPDATE Users SET favoriteItems = '" + favoriteItem + "' WHERE login = '" + authorisedUser + "'";
+            try {
+               // execute query
+               esql.executeUpdate(query);
+               System.out.println("Favorite item updated!");
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+            break;
+
+         // update password
+         case 3: 
+            String password;
+            do {
+               // prompt user for new password
+               System.out.println("Enter your new password: "); 
+               password = myObj.nextLine();
+
+               // password validation
+               if (password.length() < 1) {
+                  System.out.println("invalid password: must be at least 1 character");
+                  continue;
+               }
+               if (password.length() > 30) {
+                  System.out.println("invalid password: must be less than 31 characters");
+                  continue;
+               }
+               break;
+            } while (true);
+
+            // query to update user's password in db
+            query = "UPDATE Users SET password = '" + password + "' WHERE login = '" + authorisedUser + "'";
+            try {
+               // execute query
+               esql.executeUpdate(query);
+               System.out.println("Password updated.");
+            } catch (SQLException e) {
+               System.err.println(e.getMessage());
+            }
+            break;
+
+         case 9: break;
+         default : System.out.println("Unrecognized choice!"); break;
+      }
+   }
+
+
 
    public static void viewMenu(PizzaStore esql) {
-   
       //custom search validation loop
       //switch case menu and then verify option is exceptable 
       boolean viewmenu = true;
@@ -749,142 +851,10 @@ public class PizzaStore {
             default : System.out.println("Unrecognized choice!"); break;
          }
       }
-
    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Rest of the functions definition go in here
-
-   public static void viewProfile(PizzaStore esql, String authorisedUser) {
-
-      // query to find info for authorised user
-      String query = "SELECT phoneNum, favoriteItems FROM Users WHERE login='" + authorisedUser + "'";
-      try {
-         // execute query and print results
-         int rowCount = esql.executeQueryAndPrintResult(query);
-      } catch (SQLException e) {
-         System.err.println(e.getMessage());
-      }
-
-   }
-
-   public static void updateProfile(PizzaStore esql, String authorisedUser) {
-      
-      Scanner myObj = new Scanner(System.in);
-      int rowCount;
-      String query;
-
-      // display user's profile
-      viewProfile(esql, authorisedUser);
-
-      // ask user what they would like to update
-      System.out.println("What would you like to update?");
-      System.out.println("------------------");
-      System.out.println("1. Phone Number");
-      System.out.println("2. Favorite Item");
-      System.out.println("3. Password");
-      System.out.println("------------------");
-      System.out.println("9. Go back");
-
-      switch (readChoice()){
-         // update phone number
-         case 1: 
-            // prompt user for new phone number
-            System.out.println("Enter your new phone number: "); 
-            String phoneNum = myObj.nextLine();
-            
-            // query to update user's phone number in db
-            query = "UPDATE Users SET phoneNum = '" + phoneNum + "' WHERE login = '" + authorisedUser + "'";
-
-            try {
-               // execute query
-               esql.executeUpdate(query);
-               System.out.println("Phone number updated!");
-            } catch (SQLException e) {
-               System.err.println(e.getMessage());
-            }
-            break;
-
-         // update favorite items
-         case 2: 
-            // prompt user for new favorite item
-            System.out.println("Enter your new favorite item: "); 
-            String favoriteItem = myObj.nextLine();
-
-            // check if item exists
-            query = "SELECT * FROM Items WHERE itemName = '" + favoriteItem + "'";
-            try {
-               rowCount = esql.executeQuery(query);
-               if (rowCount == 0) {
-                  System.out.println("Item doesn't exist.");
-                  break;
-               }
-            } catch (SQLException e) {
-               System.err.println(e.getMessage());
-            }
-
-            // query to update user's phone number in db
-            query = "UPDATE Users SET favoriteItems = '" + favoriteItem + "' WHERE login = '" + authorisedUser + "'";
-            try {
-               // execute query
-               esql.executeUpdate(query);
-               System.out.println("Favorite item updated!");
-            } catch (SQLException e) {
-               System.err.println(e.getMessage());
-            }
-            break;
-
-         // update password
-         case 3: 
-            String password;
-            do {
-               // prompt user for new password
-               System.out.println("Enter your new password: "); 
-               password = myObj.nextLine();
-
-               // password validation
-               if (password.length() < 1) {
-                  System.out.println("invalid password: must be at least 1 character");
-                  continue;
-               }
-               if (password.length() > 30) {
-                  System.out.println("invalid password: must be less than 31 characters");
-                  continue;
-               }
-               break;
-            } while (true);
-
-            // query to update user's password in db
-            query = "UPDATE Users SET password = '" + password + "' WHERE login = '" + authorisedUser + "'";
-            try {
-               // execute query
-               esql.executeUpdate(query);
-               System.out.println("Password updated.");
-            } catch (SQLException e) {
-               System.err.println(e.getMessage());
-            }
-            break;
-
-         case 9: break;
-         default : System.out.println("Unrecognized choice!"); break;
-      }
-   }
-   
    public static void placeOrder(PizzaStore esql, String authorisedUser) {
-
       String storeCity;
 
       //store city validation loop 
@@ -1106,13 +1076,10 @@ public class PizzaStore {
       // Step 8: Confirmation
       System.out.println("Your order has been placed successfully!");
       System.out.println("Total price: $" + totalPrice);
-
-
    }
 
 
    public static void viewAllOrders(PizzaStore esql, String authorisedUser) {
-
       // similar to view menu/stores, but on condition that login = current user
       // how to check current user condition, changed login to return the username for queries 
       //authorisedUser is the variable we are using 
@@ -1131,8 +1098,9 @@ public class PizzaStore {
             // Handle SQL exception (e.g., problem with the query or connection)
             System.err.println("SQL error: " + e.getMessage());
          }
-
    }
+
+
    public static void viewRecentOrders(PizzaStore esql, String authorisedUser) {
       //same as teh view all orders just add sorting on timestamp and add a limit with no offset 
       String defaultQuery = "SELECT * FROM FoodOrder WHERE login = '" + authorisedUser + 
@@ -1150,12 +1118,10 @@ public class PizzaStore {
             // Handle SQL exception (e.g., problem with the query or connection)
             System.err.println("SQL error: " + e.getMessage());
          }
-
-
    }
-   public static void viewOrderInfo(PizzaStore esql, String authorisedUser) {
 
-      //add an input loop for orderID
+
+   public static void viewOrderInfo(PizzaStore esql, String authorisedUser) {      //add an input loop for orderID
       String orderID; 
       do {
          //password input
@@ -1169,6 +1135,8 @@ public class PizzaStore {
             continue; //prompts for orderID again 
          }
 
+
+
          break;
       }while (true);
 
@@ -1176,23 +1144,24 @@ public class PizzaStore {
       String defaultQuery = "SELECT * FROM FoodOrder WHERE login = '" + authorisedUser + "' and orderID = " + orderID;
 
       try {
-            List<List<String>> results = esql.executeQueryAndReturnResult(defaultQuery);
+         List<List<String>> results = esql.executeQueryAndReturnResult(defaultQuery);
 
-            if (results.size() < 1){
-               System.out.println("No orders match order ID");
-            }
-
-            for (int i = 0; i < results.size(); i++) {
-               List<String> record = results.get(i);
-               System.out.println(record);
-            }
-
-         } catch (SQLException e) {
-            // Handle SQL exception (e.g., problem with the query or connection)
-            System.err.println("SQL error: " + e.getMessage());
+         if (results.size() < 1){
+            System.out.println("No orders match order ID");
          }
+
+         for (int i = 0; i < results.size(); i++) {
+            List<String> record = results.get(i);
+            System.out.println(record);
+         }
+
+      } catch (SQLException e) {
+         // Handle SQL exception (e.g., problem with the query or connection)
+         System.err.println("SQL error: " + e.getMessage());
+      }
    }
 
+   
    public static void viewStores(PizzaStore esql) {
       //same logic as the default view menu logic 
 
@@ -1211,6 +1180,7 @@ public class PizzaStore {
             System.err.println("SQL error: " + e.getMessage());
          }
    }
+
 
    public static void updateOrderStatus(PizzaStore esql, String authorisedUser) {
 
