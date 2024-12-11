@@ -1209,17 +1209,43 @@ public class PizzaStore {
 
          if (results.size() < 1){
             System.out.println("No orders match order ID");
+            return;
          }
 
+         System.out.println("");
          for (int i = 0; i < results.size(); i++) {
             List<String> record = results.get(i);
             System.out.println(record);
+         }
+
+         defaultQuery = "SELECT itemName, quantity FROM ItemsInOrder WHERE orderID = '" + orderID + "'";
+         try {
+            results = esql.executeQueryAndReturnResult(defaultQuery);
+
+            if (results.size() < 1){
+               System.out.println("No orders match order ID");
+            }
+         
+            System.out.println("");
+            System.out.println("Items, Quantity");
+            System.out.println("---------------");
+            for (int i = 0; i < results.size(); i++) {
+               List<String> record = results.get(i);
+               System.out.println(record);
+            }
+            System.out.println("---------------");
+            System.out.println("");
+
+         } catch (SQLException e) {
+            // Handle SQL exception (e.g., problem with the query or connection)
+            System.err.println("SQL error: " + e.getMessage());
          }
 
       } catch (SQLException e) {
          // Handle SQL exception (e.g., problem with the query or connection)
          System.err.println("SQL error: " + e.getMessage());
       }
+
    }
 
    
